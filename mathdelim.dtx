@@ -1,0 +1,1874 @@
+% \iffalse meta-comment
+%
+% Copyright (C) 2010 by Philipp Stephani <st_philipp@yahoo.de>
+%
+% This file may be distributed and/or modified under the
+% conditions of the LaTeX Project Public License, either
+% version 1.3c of this license or (at your option) any later
+% version.  The latest version of this license is in:
+%
+%    http://www.latex-project.org/lppl.txt
+%
+% and version 1.3c or later is part of all distributions of
+% LaTeX version 2009/09/24 or later.
+%
+% \fi
+%
+% \iffalse
+%<*driver>
+\documentclass[a4paper, 10pt]{phst-doc}
+
+\usepackage{lipsum}
+\usepackage[scale=always]{mathdelim}
+\newcommand*{\thispackage}{\textsf{mathdelim}\xspace}
+
+\setlipsumdefault{1-2}
+
+\newcommand*{\TODO}{\begin{color}{red}\lipsum\end{color}}
+\newcommand*{\mytabularskip}{\vspace{0.8ex plus 0.8ex minus 0.3ex}}
+\newenvironment*{mytabular}{\mytabularskip\noindent\tabular}{\endtabular\mytabularskip}
+
+\newcommand*{\GreekLetter}[1]{%
+  \texttt{\string#1} & $\mathupgreek{#1}$ & $\mathnormal{#1}$%
+}
+
+\setlength{\overfullrule}{5pt}
+
+\begin{document}
+
+\DocInput{mathdelim.dtx}
+\PrintChanges
+\PrintIndex
+
+\end{document}
+%</driver>
+% \fi
+%
+% \CheckSum{0}
+%
+% \CharacterTable
+%  {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
+%   Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
+%   Digits        \0\1\2\3\4\5\6\7\8\9
+%   Exclamation   \!     Double quote  \"     Hash (number) \#
+%   Dollar        \$     Percent       \%     Ampersand     \&
+%   Acute accent  \'     Left paren    \(     Right paren   \)
+%   Asterisk      \*     Plus          \+     Comma         \,
+%   Minus         \-     Point         \.     Solidus       \/
+%   Colon         \:     Semicolon     \;     Less than     \<
+%   Equals        \=     Greater than  \>     Question mark \?
+%   Commercial at \@     Left bracket  \[     Backslash     \\
+%   Right bracket \]     Circumflex    \^     Underscore    \_
+%   Grave accent  \`     Left brace    \{     Vertical bar  \|
+%   Right brace   \}     Tilde         \~}
+%
+%
+% \changes{v0.1}{2010/01/12}{Initial version}
+%
+% \GetFileInfo{mathdelim.sty}
+%
+% \title{The \thispackage package\thanks{This document corresponds to \thispackage{}~\fileversion, dated~\filedate.}}
+% \author{Philipp Stephani \\ \texttt{st\_philipp@yahoo.de}}
+%
+%
+% \maketitle
+% \tableofcontents
+% \listoftables
+%
+%
+% \section{Introduction}
+%
+% \subsection{Delimiters in mathematical notation}
+%
+% Mathematical notation is a tool aimed at expressing mathematical ideas in a very compact yet universally comprehensible and standardized form.
+% As such it exploits characters invented for writing natural languages as well as genuinely mathematical symbols including unary and binary operators, fractions, and matrices.
+% One very broad and important class of such symbols are the \emph{delimiters} or \emph{brackets}.
+% They vary widely in appearance, semantics and usage, but nonetheless have one important propery in common: They are used to enclose subexpressions and in this way serve as a means to build a representation of an \emph{expression tree} out of a linear or two-dimensional array of symbols.
+% Syntactially, a \emph{delimited group} consists of an \emph{opening delimiter}, the subexpression that is enclosed by the delimiters, and a \emph{closing delimiter}.
+% In the usual visual representation of mathematical notation that typesetting systems like \TeX\ help to create, delimiters are set off by their capability to get vertically stretched according to their content.
+%
+% One very common application of delimiters is the expression or clarification of operator precedence in infix-based notational systems.
+% For this purpose mathematicians traditionally employ round \emph{parentheses}~$(\dotsb)$, \emph{square brackets}~$[\dotsb]$, and \emph{curly braces}~$\{\dotsb\}$, the first one being a bit more common than the latter two.
+% This usage is ubiquitous in all areas of mathematics and the fields of study that employ mathematics as an auxiliary science.
+% Which pair of these generic delimiters are used depends on situation, context, and tradition; many mathematicians use parentheses all the way, whereas others insist on distinguishing between different levels of grouping by means of different symbols.
+%
+% Other notational conventions in widespread usage include parenthesis for denoting function application; curly braces for set notation; and angle brackets~$\langle\dotsb\rangle$ for mean values.
+% Apart from these nearly-universal conventions, many sciences use delimiters for specialized notations.
+%
+%
+% \subsection{Mathematical notation in \TeX\ and \LaTeX}
+%
+% \TeX\ is a typesetting system with sophisticated algorithms for general and mathematical typesetting.
+% \LaTeXe\ is a \TeX\ format that intends to provide a high-level and user-friendly interface to \TeX's abilities.
+%
+%
+% \subsection{Current situation}
+%
+% \LaTeX\ math mode delimiters (parentheses, brackets, braces, \dots)\ come in four flavors: The simple small symbols like |(|, \cmd{\{} or \cmd{\langle}; the symbols with explicit sizing but without class assignment like |\big(| or |\Big>|; the symbols with explicit sizing and class assignment like |\bigl(| and |\Bigr>|; and the automatically sized symbols using the \cmd{\left} and \cmd{\right} primitives.
+% This package tries to unify and generalize these methods.
+% For these purposes, several commands are defined that take mathematical expressions as arguments and put delimiting symbols around them.
+% This is far less flexible than the standard \LaTeX\ approach (proper nesting is required, the delimited expression cannot wrap around, and much more), but it covers the most common cases.
+%
+% \autoref{Properties} gives an overview about some properties of these three forms of delimiters.
+% Perhaps the notions in this table deserve a bit of explanation.
+%
+% \begin{itemize}
+% \item |\left...\right| constructions introduce a third level of nesting (the other two are curly braces and environments).
+%   Of course, this is necessary, for \TeX\ has to know the formula to which the delimiters are to applied in order to being able of caluclating the required delimiter symbol height.
+%   The other two forms do not impose such a restriction because the resulting size is always the same and does not depend on the surrounding material.
+% \item \TeX\ uses two totally different methods to produce a delimiter symbol, depending on whether \cmd{\left} or \cmd{\right} is used or not.
+%   After that primitives, \TeX\ looks for either a character token with nonnegative delcode (e.\,g. |(| or |>|) or an explicit \cmd{\delimiter} command; the latter is produced by expanding well-known macros like \cmd{\lbrace} or \cmd{\rangle}.
+%   Otherwise, \TeX\ uses the mathcode or the class digit in the \cmd{\delimiter} command to format the output symbol.
+%   Because of this |>| gives a greater-than operator inside math mode while |\right>| give an angle bracket, a totally distinct symbol ($>$ vs. $\rangle$), which sometimes leads to incorrect results if the author does not know about the difference and thinks he could interchange |>| and |\right>| freely.
+% As the macros for manual sizing (\cmd{\big}, \cmd{\bigl}, etc.) use the |\left| primitive internally, this behaviour applies to them, too.
+% \item The most confusing and inconsistent point is the classes of the resulting symbols and the delimited subformula (in case of the automatically sized delimiters).
+%   \TeX\ assigns a property called \emph{class} to each object in math mode.
+%   The classes of adjacent objects are crucial in determining the space between them.
+%   The rules governing this are fairly complex and can involve class reassignments; for example, in the formula $-a-b$ \TeX\ correctly interprets the first minus sign as unary arithmetic negation sign and the second as binary subtraction operator: There is some space around the second sign, but none between the first and the variable $a$.
+%   This works because \LaTeX\ assigns the class ``binary operator'' to the minus sign, which gets converted to ``ordinary character'' at the beginning of a (sub-)formula.
+%   For our needs, we don't have to go into the details of class assignments; but we have to note that spacing is crucial in interpreting the meaning of mathematical expressione.
+%   Here are two examples: $f \parens*{x+y}$ usually means the application of a function called $f$ to the argument $x+y$, but $f \parens{x+y}$ means the product of the variable $f$ and the sum $x+y$; $\sin xy$ means the sine of the product $xy$, while $\sin x \:y$ means the sine of $x$, multiplied by $y$.
+%   The second example is unrelated to delimiters and serves as a mere warning sign for authors to think about the readability of their formulæ; the first one shows the (at least) two different purposes of parentheses---grouping and function application.
+%   \TeX\ has nine classes, but only four of them are important to this package: ordinary, opening, closing, and inner.
+%   Ordinary characters are in the same class like letters or numbers;\footnote{Not really, since letters and numbers are in the variable family class, but that doesn't matter here.} the explicit sizing commands \cmd{\big}, \cmd{\Big}, \cmd{\bigg}, \cmd{\Bigg} force their argument into this class.
+%   Objects of this class are intended to serve as non-operators and produce stylistic errors when used as operators or delimiters: |\big(-a-b\big)|, printed as $\big(-a-b\big)$, gives wrong spacing around the first minus sign because when it comes to spacing the |\big(| object gets the same treatment as every other ordinary symbol (like $a$ and $b$).
+%   The right class for delimiter symbols is usually ``Opening'' (for opening delimiters) or ``Closing'' (for closing delimiters).
+%   \LaTeX\ assigns sensible classes for many simple delimiters (\ie |(|, |[|, \cmd{\{} and \cmd{\langle} are opening delimiters, and so on), but sometimes manual tweaking is required: A common notation for open intervals exchanges the role of opening and closing brackets and confuses \TeX: |I = ]0,1[ \cap \mathbb Q| gives $I = ]0,1[ \cap \mathbb Q$, not $I = \mathopen]0,1\mathclose[ \cap \mathbb Q$.
+%   The |\left...\right| construct does another very different thing: It forces the whole delimited subformula into the ``inner'' class which leads to some space around it.
+%   In many cases, this behaviour is correct, but sometimes the spaces are confusing, especially when the parentheses serve as function application sign.
+%   $\exp(x)$ looks quite good, while $\exp\left(x\right)$ doesn't.
+%   (The latter was produced using \cmd{\left} and \cmd{\right}.)
+% \end{itemize}
+%
+% \begin{doctable}{Properties}{Properties of the \LaTeX's delimiter symbols and commands}{lcccc}
+%   \tblhead{Property} & \tblhead{Simple} & \tblhead{Explicit} & \tblhead{Explicit, with class} & \tblhead{Auto} \\
+%   \midrule
+%   Must be nested correctly & No & No & No & Yes \\
+%   Can be used with |<| etc. & No & Yes & Yes & Yes \\
+%   Class for delimiters & Depends & Ord. & Opening/Closing & Ord. \\
+%   Class for subformula & --- & --- & --- & Inner
+% \end{doctable}
+%
+% An important point not mentioned until now is middle delimiters.
+% These are mathematical objects inside of left and right delimiters, but with the same height as the surrounding delimiters.
+% One prominent example for this is the set notation $\setprop{x \in \mathbb R}{x > 5}$.
+% Standard \TeX\ can only produce simple rules with these properties, but \eTeX\ is able to produce arbitrary middle delimiters using the |\middle| primitive.
+%
+%
+% \subsection{The principles of \thispackage}
+%
+% \thispackage unifies and simplifies these techniques, laying its principles on the following points:
+%
+% \begin{itemize}
+%   \item In most cases, the automatical sizing provided by \TeX\ suffices, so this shall be the default.
+% On the other hand, in complicated formulæ it is often necessary to fine-tune the delimiter heights, which shall be as easy as possible.
+%   \item Delimiters used for grouping are more common than delimiters used for function application.
+% Thus, delimited expressions shall render as inner formulæ by default, but the alternative rendering must be possible, too.
+%   \item Middle delimiters shall always have the same height as their left and right counterparts.
+%   \item An interface for painless declaration of new delimiter commands shall be provided in order to encourage the creation of semantic commands.
+% \end{itemize}
+%
+%
+% \subsection{Alternatives}
+%
+% \begin{itemize}
+% \item The \pkg{braket} package by \Arseneau provides macros for inserting small and automatically-sized bra and ket vectors.
+% \item The \pkg{mathtools} package by \Hogholm introduces (apart from many other useful things) a \cmd{\DeclarePairedDelimiter} macro as a somewhat simpler version of \cmd{\CreateSimpleDelimiterCommand}.
+% \end{itemize}
+%
+%
+% \section{Interface}
+%
+% \subsection{Package loading}
+%
+% As usual, the package is loaded with |\usepackage{mathdelim}|; it doesn't declare any options.
+% If you plan to use \pkg{amsmath}, you should load it before \thispackage, as \thispackage can use a few optimizations if \pkg{amsmath} is loaded.
+%
+% \thispackage requires the \eTeX\ extensions, so you have to use an implementation providing these, \eg \Thanh's \pdfTeX.
+% As of 2008, all major \TeX\ distributions (\TeXLive, \MiKTeX, \dots)\ have the \eTeX\ extensions activated by default, so usually you don't have to care about that.
+%
+% \DescribeOption{method}
+%
+%
+% \subsection{Naming conventions}
+%
+%
+% \subsection{General syntax}
+%
+% \DescribeOption{scale}
+%
+% The commands described here serve as means to quickly input commonly used delimiter symbols with suitable scaling.
+% They have starred and unstarred forms: \cs{\meta{command}}\oarg{size}\marg{expression} or \cs{\meta{command}}|*|\oarg{size}\marg{expression}.
+% The unstarred form forces the whole delimited expression into a subformula, while the starred form guarantees that the opening and closing delimiters belong to the ``opening'' and ``closing'' class, respectively.
+% As explained above, this affects spacing.
+% Compare:
+% \begin{equation*}
+%   \exp \parens*{\frac12} \quad \text{versus} \quad \exp \parens{\frac12}.
+% \end{equation*}
+% The optional argument \meta{size} indicates the height of the delimiter symbols.
+% If this argument is left out, the symbols are automatically scaled, using the |\left| and |\right| primitives.
+% Otherwise, the optional argument must be an integer between~0 and~5 that indicates the requested size.
+% 0 means no delimiters at all, 1 stands for unsized (``little'') delimiters, and the integers from~2 to~5 stand for the standard sizes |\big|, |\Big|, |\bigg| and |\Bigg|, respectively.
+% Examples for this are to be found in \autoref{Sizes}.
+%
+%
+% \begin{doctable}{Sizes}{Delimiter sizes}{lll}
+%   \tblhead{Input} & \tblhead{Correspondent} & \tblhead{Output} \\
+%   \midrule
+%   |\parens{\frac12}| & |\left( \frac12 \right)| & \tblmath{\parens{\dfrac12}} \\
+%   |\parens[0]{\frac12}| & |\frac12| & \tblmath{\parens[0]{\dfrac12}} \\
+%   |\parens[1]{\frac12}| & |( \frac12 )| & \tblmath{\parens[1]{\dfrac12}} \\
+%   |\parens[2]{\frac12}| & |\bigl( \frac12 \bigr)| & \tblmath{\parens[2]{\dfrac12}} \\
+%   |\parens[3]{\frac12}| & |\Bigl( \frac12 \Bigr)| & \tblmath{\parens[3]{\dfrac12}} \\
+%   |\parens[4]{\frac12}| & |\biggl( \frac12 \biggr)| & $\parens[4]{\dfrac12}$ \\
+%   |\parens[5]{\frac12}| & |\Biggl( \frac12 \Biggr)| & $\parens[5]{\dfrac12}$
+% \end{doctable}
+%
+%
+% All high-level commands further expect one or more required arguments that form the expression to be parenthesized.
+% While the starred/unstarred switch and the size argument are the same for all those commands, the interpretation of the required argument(s) is particular to the individual commands.
+% Only the required arguments are mentioned in the sections below.
+%
+%
+% \subsection{Language support}
+%
+%
+% \subsection{Predefined delimiter commands}
+%
+% \DescribeMacro{\SetupMathDelimiters}
+%
+%
+% \subsubsection{Generic delimiters}
+%
+% \DescribeMacro{\parens}
+% \DescribeMacro{\brackets}
+% \DescribeMacro{\braces}
+% \DescribeMacro{\angles}
+% The four general-purpose commands \cmd{\p}\marg{expression}, \cmd{\brackets}\marg{expression}, \cmd{\braces}\marg{expression} and \cmd{\angles}\marg{expression} enclose their sole required argument \meta{expression} in round, square, curly and angle brackets, respectively.
+% An overview about these commands can be found in \autoref{GenericCommands}.
+% They can be used as scaled variants of the |(...)|, |[...]|, |\{...\}| and |\langle...\rangle| sequences; for specific expressions like set notation the specialized cimmands described below are usually better suited, as they take care of some particularities and increase the overall expressiveness of documents.
+%
+%
+% \begin{doctable}{GenericCommands}{Generic brackets and parentheses}{lll}
+%   \tblhead{Command} & \tblhead{Description} & \tblhead{Example} \\
+%   \midrule
+%   \cmd{\p} & Parentheses & \tblmath{\parens{\cdots}} \\
+%   \cmd{\brackets} & Square brackets & \tblmath{\brackets{\cdots}} \\
+%   \cmd{\braces} & Curly braces & \tblmath{\braces{\cdots}} \\
+%   \cmd{\angles} & Angle brackets & \tblmath{\angles{\cdots}}
+% \end{doctable}
+%
+%
+% \subsubsection{Specific commands for mathematical notations}
+%
+% The commands described here are suited for insertion of specific mathematical constructs.
+% Generally, these semantic commands ought to be preferred over the generic commands.
+% A summary of them can be found in \autoref{SpecificMath}.
+%
+%
+% \begin{doctable}{SpecificMath}{Summary of the specific commands for mathematical notations}{lll}
+%   \tblhead{Command} & \tblhead{Description} & \tblhead{Example} \\
+%   \midrule
+%   \cmd{\set} & Set & \tblmath{\set{1, 2, 3, \dotsc}} \\
+%   \cmd{\setprop} & Set with condition & \tblmath{\setprop{n \in \mathbb N_0}{n < 5}} \\
+%   \cmd{\eval} & Evaluation & \tblmath{\eval{x^2}_0^1} \\
+%   \cmd{\abs} & Absolute value & \tblmath{\abs{\vec x}} \\
+%   \cmd{\norm} & Norm & \tblmath{\norm{A}} \\
+%   \cmd{\floor} & Floor function & \tblmath{\floor{x}} \\
+%   \cmd{\ceil} & Ceiling function & \tblmath{\ceil{x}}
+% \end{doctable}
+%
+% \DescribeMacro{\set}
+% \DescribeOption{set-delim-skip}
+% \cmd{\set}\marg{expression} serves for displaying a set using the brace notation.
+% The \meta{expression} is printed between curly braces.
+% Between the \meta{expression} and the braces a horizontal space of with \cmd{\setskip} is inserted.
+% The same space can be manually placed at arbitrary places using the command \cmd{\setspace}.
+% The predefined value for \cmd{\setskip} is |2mu plus 1mu minus 2mu|.
+%
+% \DescribeMacro{\setprop}
+% \DescribeOption{setprop-sep-skip}
+% \cmd{\setprop}\marg{elements}\marg{condition} prints a set defined by some \meta{elements} and a \meta{condition} they have to fulfill.
+% A vertical rule with the same height as the surrounding braces is drawn between \meta{elements} and \meta{condition}.
+%
+% \DescribeMacro{\cinterval}
+% \DescribeMacro{\lointerval}
+% \DescribeMacro{\rointerval}
+% \DescribeMacro{\ointerval}
+% \DescribeOption{interval}
+%
+% \DescribeMacro{\eval}
+% \cmd{\eval}\marg{expression} inserts a vertical rule after the \meta{expression}.
+% This notation often indicates the evaluation at one point, or at two points of an antiderivative.
+%
+% \DescribeMacro{\innerprod}
+%
+% \DescribeMacro{\abs}
+% \DescribeMacro{\norm}
+% \cmd{\abs}\marg{expression} and \cmd{\norm}\marg{Ausdruck} print the \meta{expression} between single (for absolute values) or double vertical lines (for norms), respectively.
+% The horizontal spaces around the vertical lines are set correctly which is important because vertical lines don't carry an opening or closing semantic without correct spacing, as laid out in the introduction.
+%
+% \DescribeMacro{\floor}
+% \DescribeMacro{\ceil}
+% \cmd{\floor}\marg{expression} and \cmd{\ceil}\marg{expressions} insert the floor and ceiling functions applied to the \meta{expression}, using \name{Iverson}{Kenneth~E.}'s notation.
+%
+%
+% \subsubsection{Specific commands for physical notations}
+%
+% These macros, summarized in \autoref{SpecificPhysics}, serve as means of writing some common notations in physics.
+%
+%
+% \begin{doctable}{SpecificPhysics}{Summary of the specific commands for physical notations}{lll}
+%   \tblhead{Command} & \tblhead{Description} & \tblhead{Example} \\
+%   \midrule
+%   \cmd{\commutator} & Commutator & \tblmath{\commutator{x_i}{p_j}} \\
+%   \cmd{\anticommutator} & Anticommutator & \tblmath{\anticommutator{\gamma^\mu}{\gamma^\nu}} \\
+%   \cmd{\bra} & Bra vector & \tblmath{\bra{\varphi}} \\
+%   \cmd{\ket} & Ket vector & \tblmath{\ket{\psi}} \\
+%   \cmd{\braket} & Product of bra and ket & \tblmath{\braket{\varphi}{\psi}} \\
+%   \cmd{\braopket} & Product of bra, operator and ket & \tblmath{\braopket{\varphi}{x^2}{\psi}} \\
+%   \cmd{\ketbra} & Product of ket and bra & \tblmath{\ketbra{\psi}{\varphi}} \\
+%   \cmd{\ketbraket} & Product of ket, bra and ket & \tblmath{\ketbraket{\psi}{\psi}{\varphi}}
+% \end{doctable}
+%
+% \DescribeMacro{\commutator}
+% \DescribeMacro{\anticommutator}
+% \cmd{\commutator}\marg{first}\marg{second} inserts the commutator between \meta{first} and \meta{second}.
+% \cmd{\anticommutator}\marg{first}\marg{second} inserts the anticommutator between \meta{first} and \meta{second}.
+%
+% \DescribeMacro{\bra}
+% \DescribeMacro{\ket}
+% \DescribeMacro{\braket}
+% \DescribeMacro{\braopket}
+% \DescribeMacro{\ketbra}
+% \DescribeMacro{\ketbraket}
+% The next six macros facilitate inputting bra and ket vectors as well as some commonly used products between them.
+% \cmd{\bra}\marg{bra vector} and \cmd{\ket}\marg{ket vector} insert bra and ket vectors in the Dirac bra-ket notation.
+% \cmd{\braket}\marg{bra}\marg{ket} inserts the (scalar) product of \meta{bra} and \meta{ket}.
+% \cmd{\braopket}\marg{bra}\marg{operator}\marg{ket} inserts the product of \meta{bra}, \meta{operator} and \meta{ket} (\eg matrix elements or expectation values of the \meta{operator}).
+% \cmd{\ketbra}\marg{ket}\marg{bra} inserts the product of \meta{ket} and \meta{bra}, \eg a projector.
+% \cmd{\ketbraket}\marg{first ket}\marg{bra}\marg{second ket} inserts the product of \meta{first ket}, \meta{bra} and \meta{second ket}, \eg a term in a linear combination.
+%
+%
+%
+% \subsection{Factory commands}
+%
+% \DescribeMacro{\NewComplexDelimiterCommand}
+% \DescribeMacro{\RenewComplexDelimiterCommand}
+% \DescribeMacro{\ProvideComplexDelimiterCommand}
+% \DescribeMacro{\DeclareComplexDelimiterCommand}
+% The macro \cmd{\CreateDelimiterCommand}\marg{cmd}\marg{left}\marg{right}\marg{args}\marg{def} creates \meta{cmd} as a new high-level delimiter command.
+% If the \meta{cmd} already exists, an error is issued.
+% The newly-created command obeys the same syntactic rules as the predefined high-level commands, \ie a starred form and an optional size argument is provided.
+% \meta{left} and \meta{right} are used as left and right delimiters, respectively.
+% \meta{args} is an integer between~0 and~9 denoting the number of required arguments.
+% \meta{def} is printed between the delimiter symbols and can contain macro parameter tokens (|#1| \etc) which are replaced by the required arguments passed to the \meta{cmd}.
+%
+% \DescribeMacro{\NewSimpleDelimiterCommand}
+% \DescribeMacro{\RenewSimpleDelimiterCommand}
+% \DescribeMacro{\ProvideSimpleDelimiterCommand}
+% \DescribeMacro{\DeclareSimpleDelimiterCommand}
+% The macro \cmd{\CreateSimpleDelimiterCommand}\marg{cmd}\marg{left}\marg{right} covers the common case of a high-level delimiter command expecting exactly one required argument and printing it between the given delimiters.
+% It corresponds to \cmd{\CreateDelimiterCommand}\marg{cmd}\marg{left}\marg{right}|{1}{##1}|.
+%
+%
+% \subsection{Generic document commands}
+%
+% \DescribeMacro{\mathdelim}
+% The macro \cmd{\delimgroup}\oarg{size}\marg{left}\marg{right}\marg{expression} prints an inner formula containing a \meta{left} delimiter, the \meta{expression} and a \meta{right} delimiter.
+% The two delimiters are printed in the height indicated by \meta{size}.
+% If the optional argument \meta{size} is left out, they are as high as the \meta{expression}; this has the same effect as |\left...\right|.
+%
+% The starred version \cmd{\delimgroup}|*|\oarg{size}\marg{left}\marg{right}\marg{expression} acts in the same way, but without forcing the whole result in an inner formula.
+% Like for the high-level commands, \meta{size}, if given, must be an integer from 0 (invisible delimiters) to 5 (\cmd{\Bigg} delimiters).
+% The arguments \meta{left} and \meta{right} can be empty, in which case no left or right delimiter is printed.
+%
+% \DescribeMacro{\middledelim}
+% The macro \cmd{\middledelim}\marg{delimiter} can only be used inside a delimiter group created by \cmd{\delimgroup} or one of the high-level group commands.
+% It inserts the \meta{delimiter} at the same hight as the surrounding left and right delimiters.
+% The \meta{delimiter} symbol must be one of the symbols accepted by \cmd{\left} or \cmd{\right}.
+%
+%
+% \subsection{Customization}
+%
+% \DescribeMacro{\DeclareDelimiterSize}
+%
+% \DescribeMacro{\UndeclareDelimiterSize}
+%
+%
+%
+% \StopEventually{}
+%
+%
+% \section{Implementation}
+%
+% \subsection{Prerequisites}
+%
+%    \begin{macrocode}
+%<*package>
+\NeedsTeXFormat{LaTeX2e}[2009/09/24]
+\RequirePackage{etex}[1998/03/26]
+\RequirePackage{expl3}[2009/11/02]
+\ProvidesExplPackage{mathdelim}{2010/01/13}{0.1}%
+  {Aliases for mathematical delimiters}
+\RequirePackage{xparse}[2009/11/06]
+\RequirePackage{xtemplate}[2009/11/16]
+\RequirePackage{kvoptions}[2009/12/08]
+%    \end{macrocode}
+%
+%
+% \subsection{Generic variables}
+%
+% \begin{macro}{\mathdelim_temp_func:}
+% \begin{macro}{\l_mathdelim_size_tl}
+% \begin{macro}{\l_mathdelim_name_tl}
+%    \begin{macrocode}
+\cs_new:Npn \mathdelim_temp_func: { }
+\tl_new:N \l_mathdelim_size_tl
+\tl_new:N \l_mathdelim_name_tl
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+%
+% \subsection{Generic low-level macros}
+%
+% \begin{macro}{\mathdelim_execute:x}
+% bla bla |\mathdelim_execute:x|\marg{code} bla bla
+%    \begin{macrocode}
+% where is exp_arg:x?
+\cs_new_protected_nopar:Npn \mathdelim_execute:x #1 {
+  \group_begin:
+  \cs_set_nopar:Npx \mathdelim_temp_func: { #1 }
+  \exp_after:wN
+  \group_end:
+  \mathdelim_temp_func:
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_bool_to_str:N}
+% |\mathdelim_bool_to_str:N|\meta{bool}
+%    \begin{macrocode}
+% why is this necessary
+\cs_new_nopar:Nn \mathdelim_bool_to_str:N {
+  \bool_if:NTF #1 { true } { false }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{l3message}{unknown-setting}
+%    \begin{macrocode}
+\msg_new:nnn { mathdelim } { unknown-setting } {%
+  Unknown setting `#2' for the `#1' option. Use one of:\\%
+  #3%
+}
+%    \end{macrocode}
+% \end{l3message}
+%
+% \begin{macro}{\mathdelim_new_choice_key:nnn}
+% |\mathdelim_new_choice_key:nnn|\marg{key name}\marg{values}\marg{code}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_new_choice_key:nnn {
+  \define@key { mathdelim } { #1 } {
+    \cs_if_exist:cTF { mathdelim_option_ #1 _ ##1 : } {
+      #3 { mathdelim_option_ #1 _ ##1 : }
+    } {
+      \msg_error:nnxxx { mathdelim } { unknown-setting }
+        { \tl_to_str:n { #1  } }
+        { \tl_to_str:n { ##1 } }
+        { \tl_to_str:n { #2  } }
+    }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_new_choice_key_exec:nn}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_new_choice_key_exec:nn {
+  \mathdelim_new_choice_key:nnn { #1 } { #2 } { \use:c }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_new_choice_key_assign:nnN}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_new_choice_key_assign:nnN {
+  \mathdelim_new_choice_key:nnn { #1 } { #2 } { \cs_set_eq:Nc #3 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_new_bool_key_assign:nN}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_new_bool_key_assign:nN {
+  \define@key { mathdelim } { #1 } {
+    \cs_if_exist:cTF { bool_set_ ##1 :N } {
+      \cs_use:c { bool_set_ ##1 :N } #2
+    } {
+      \msg_error:nnxxx { mathdelim } { unknown-setting }
+        { \tl_to_str:n { #1  } }
+        { \tl_so_str:n { ##1 } }
+        { false,~ true }
+    }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsection{Package dependency handling}
+%
+% \begin{macro}{\mathdelim_after_file:nn}
+% \begin{macro}{\mathdelim_after_package:nn}
+% |\mathdelim_after_file:nn|\marg{filename}\marg{code}
+% |\mathdelim_after_package:nn|\marg{package}\marg{code}
+%    \begin{macrocode}
+\@ifclassloaded { memoir } {
+  \cs_new_protected_nopar:Nn \mathdelim_after_file:nn {
+    \AtEndFile           { #1 } { #2 }
+  }
+  \cs_new_protected_nopar:Nn \mathdelim_after_package:nn {
+    \RequireAtEndPackage { #1 } { #2 }
+  }
+} {
+  \RequirePackage { scrlfile } [ 2009/03/25 ]
+  \cs_new_protected_nopar:Nn \mathdelim_after_file:nn {
+    \AfterFile           { #1 } { #2 }
+  }
+  \cs_new_protected_nopar:Nn \mathdelim_after_package:nn {
+    \AfterPackage *      { #1 } { #2 }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+%
+% \subsection{Mathematical low-level macros}
+%
+% \begin{l3message}{invalid-outside-math}
+%    \begin{macrocode}
+\msg_new:nnn { mathdelim } { invalid-outside-math } {%
+  The command `#1' is invalid outside math mode.%
+}
+%    \end{macrocode}
+% \end{l3message}
+%
+% \begin{macro}{\mathdelim_ensure_math_mode:Nn}
+% |\mathdelim_ensure_math_mode:Nn|\meta{command}\marg{code}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_ensure_math_mode:Nn {
+  \mode_if_math:TF {
+    #2
+  } {
+    \msg_error:nnx { mathdelim } { invalid-outside-math }
+      { \token_to_str:N #1 }
+    \c_math_shift_token
+    #2
+    \c_math_shift_token
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_if_inline:TF}
+%    \begin{macrocode}
+\cs_new_eq:NN \mathdelim_if_inline:TF \mode_if_inner:TF
+\mathdelim_after_package:nn { amsmath } {
+  \prg_set_conditional:Nnn \mathdelim_if_inline: { TF } {
+    \if@display
+      \prg_return_false:
+    \else:
+      \mode_if_inner:TF {
+        \prg_return_true:
+      } {
+        \prg_return_false:
+      }
+    \fi:
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_nulldelim:}
+%    \begin{macrocode}
+\cs_new_nopar:Nn \mathdelim_nulldelim: {
+  \tex_delimiter:D \c_zero
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{l3message}{middle-outside-of-delim}
+%    \begin{macrocode}
+\msg_new:nnn { mathdelim } { middle-outside-of-delim } {%
+  You cannot use \token_to_str:N\middledelim\ outside of\\%
+  a delimited subexpression.%
+}
+%    \end{macrocode}
+% \end{l3message}
+%
+% \begin{macro}{\mathdelim_middle:N}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_middle:N {
+  \msg_error:nn { mathdelim } { middle-outside-of-delim }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_unscaled:N}
+% \begin{macro}{\mathdelim_unscaled_aux:NN}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_unscaled:N {
+  {
+    \mathpalette \mathdelim_unscaled_aux:Nn { #1 }
+  }
+}
+\cs_new_protected_nopar:Nn \mathdelim_unscaled_aux:Nn {
+  \hbox:n {
+    \c_math_shift_token
+    #1
+    \tex_left:D  #2
+    \tex_right:D \mathdelim_nulldelim:
+    \n@space
+    \c_math_shift_token
+  }
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\mathdelim_after_package:nn { amsmath } {
+  \cs_set_protected_nopar:Nn \mathdelim_unscaled_aux:Nn {
+    \@mathmeasure \c_zero {
+      #1
+      \dim_zero:N \tex_nulldelimiterspace:D
+    } {
+      \tex_left:D  #2
+      \tex_right:D \mathdelim_nulldelim:
+    }
+    \box_use_clear:N \c_zero
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_unscaled_left:N}
+% \begin{macro}{\mathdelim_unscaled_right:N}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Npn \mathdelim_unscaled_left:N   {
+  \tex_mathopen:D  \mathdelim_unscaled:N
+}
+\cs_new_protected_nopar:Npn \mathdelim_unscaled_right:N  {
+  \tex_mathclose:D \mathdelim_unscaled:N
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_vcenter:n}
+% \begin{macro}{\mathdelim_vcenter:Nn}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_vcenter:n {
+  \mathpalette \mathdelim_vcenter_aux:Nn { #1 }
+}
+\cs_new_protected_nopar:Nn \mathdelim_vcenter_aux:Nn {
+  \tex_vcenter:D {
+    \hbox:n {
+      \c_math_shift_token
+      \m@th #1 #2
+      \c_math_shift_token
+    }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+%
+% \subsection{Printing functions}
+%
+% \begin{macro}{\mathdelim_print:NNNn}
+% |\mathdelim_print:NNNn|\meta{left}\meta{middle}\meta{right}\marg{content}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_print:NNNn {
+  \cs_set_eq:NN \mathdelim_middle:N #2
+  % must be set before \left..\right because \middle ends a group!!!
+  \l_mathdelim_beforeleft_tl
+  #1
+  \l_mathdelim_left_tl
+  \l_mathdelim_afterleft_tl
+  \l_mathdelim_macro_tl
+  #4
+  \l_mathdelim_beforeright_tl
+  #3
+  \l_mathdelim_right_tl
+  \l_mathdelim_afterright_tl
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_print_csnsme:xN}
+% \begin{macro}{\mathdelim_print_csname:NN}
+%    \begin{macrocode}
+\cs_new_nopar:Nn \mathdelim_print_csname:xN {
+  mathdelim_print_
+  #1
+  _
+  \mathdelim_bool_to_str:N #2
+  :n
+}
+\cs_new_nopar:Nn \mathdelim_print_csname:NN {
+  \mathdelim_print_csname:xN { #1 } #2
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{l3message}{invalid-size}
+%    \begin{macrocode}
+\msg_new:nnn { mathdelim } { invalid-size } {%
+  Invalid size `#1'. Use one of:\\%
+  \g_mathdelim_sizes_clist
+}
+%    \end{macrocode}
+% \end{l3message}
+%
+% \begin{macro}{\mathdelim_print:nNn}
+% |\mathdelim_print:nNn|\marg{size}\meta{function-arg}\marg{contents}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_print:nNn {
+  \tl_set:Nx \l_mathdelim_size_tl { \tl_to_str:n { #1 } }
+  \tl_set:Nx \l_mathdelim_name_tl {
+    \mathdelim_print_csname:NN \l_mathdelim_size_tl #2
+  }
+  \cs_if_exist:cTF { \l_mathdelim_name_tl } {
+    \use:c { \l_mathdelim_name_tl } { #3 }
+  } {
+    \msg_error:nnx { mathdelim } { invalid-size }
+      { \l_mathdelim_size_tl }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsection{Size declarations}
+%
+% \begin{macro}{\g_mathdelim_sizes_reserved_clist}
+%    \begin{macrocode}
+\clist_new:N         \g_mathdelim_sizes_reserved_clist
+\clist_gput_right:Nn \g_mathdelim_sizes_reserved_clist { auto     }
+\clist_gput_right:Nn \g_mathdelim_sizes_reserved_clist { scaled   }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\g_mathdelim_sizes_clist}
+%    \begin{macrocode}
+\clist_new:N \g_mathdelim_sizes_clist
+\clist_gset_eq:NN
+  \g_mathdelim_sizes_clist
+  \g_mathdelim_sizes_reserved_clist
+% sequences don't seem to work
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_size_check:NT}
+%    \begin{macrocode}
+\prg_new_protected_conditional:Nnn \mathdelim_size_check:N { T } {
+  \clist_if_in:NoTF \g_mathdelim_sizes_reserved_clist #1 {
+    \msg_error:nnx { mathdelim } { size-reserved }
+      { \tl_to_str:N #1 }
+    \prg_return_false:
+  } {
+    \prg_return_true:
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_size_explicit_make_aux:nNNN}
+% |\mathdelim_size_explicit_make_aux:nNNN|\marg{size}\meta{left}\meta{middle}\meta{right}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_size_explicit_make_aux:nNNN {
+  \tl_set:Nx \l_mathdelim_size_tl { \tl_to_str:n { #1 } }
+  \mathdelim_size_check:NT \l_mathdelim_size_tl {
+    \clist_if_in:NoF \g_mathdelim_sizes_clist \l_mathdelim_size_tl {
+      \clist_gput_right:No \g_mathdelim_sizes_clist \l_mathdelim_size_tl
+    }
+    \cs_gset_protected_nopar:cn {
+      \mathdelim_print_csname:NN \l_mathdelim_size_tl \c_false_bool
+    } {
+      \tex_mathinner:D {
+        \mathdelim_print:NNNn #2 #3 #4 { ##1 }
+      }
+      \bool_if:NT \l_mathdelim_script_attach_delim_bool {
+        \tex_nonscript:D \tex_mskip:D -\tex_thinmuskip:D
+        \tex_mathinner:D {
+          \vphantom {
+            #4
+            \l_mathdelim_right_tl
+          }
+        }
+      }
+    }
+    \cs_gset_protected_nopar:cn {
+      \mathdelim_print_csname:NN \l_mathdelim_size_tl \c_true_bool
+    } {
+      \mathdelim_print:NNNn   #2 #3 #4 { ##1 }
+    }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_size_explicit_make:nNNN}
+% |\mathdelim_size_explicit_make:nNNN|\marg{sizes}\meta{left}\meta{middle}\meta{right}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_size_explicit_make:nNNN {
+  \clist_map_inline:nn { #1 } {
+    \mathdelim_size_explicit_make_aux:nNNN { ##1 } #2 #3 #4
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_size_remove_aux:n}
+% |\mathdelim_size_remove_aux:n|\marg{size}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_size_remove_aux:n {
+  \tl_set:Nx \l_mathdelim_size_tl { \tl_to_str:n { #1 } }
+  \mathdelim_size_check:NT \l_mathdelim_size_tl {
+    \clist_gremove_element:NN \g_mathdelim_sizes_clist \l_mathdelim_size_tl
+    \cs_gundefine:c {
+      \mathdelim_print_csname:NN \l_mathdelim_size_tl \c_false_bool
+    }
+    \cs_gundefine:c {
+      \mathdelim_print_csname:NN \l_mathdelim_size_tl \c_true_bool
+    }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_size_remove:n}
+% |\mathdelim_size_remove:n|\marg{sizes}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_size_remove:n {
+  \clist_map_function:nn { #1 } \mathdelim_size_remove_aux:n
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsection{Predefined sizes}
+%
+%    \begin{macrocode}
+\cs_new_protected_nopar:cn {
+  \mathdelim_print_csname:xN { scaled } \c_false_bool
+} {
+  \mathdelim_print:NNNn   \tex_left:D \etex_middle:D \tex_right:D { #1 }
+}
+\cs_new_protected_nopar:cn {
+  \mathdelim_print_csname:xN { scaled } \c_true_bool
+} {
+  \tex_mathopen:D { }
+  \tex_mathclose:D {
+    \mathdelim_print:NNNn \tex_left:D \etex_middle:D \tex_right:D { #1 }
+  }
+}
+%    \end{macrocode}
+%
+% \begin{macro}{\mathdelim_option_scale_display:}
+% \begin{macro}{\mathdelim_option_scale_always:}
+% \begin{macro}{\mathdelim_print_auto_size:}
+%    \begin{macrocode}
+\cs_new_nopar:Nn \mathdelim_option_scale_display: {
+  \mathdelim_if_inline:TF { unscaled } { scaled }
+}
+\cs_new_nopar:Nn \mathdelim_option_scale_always: { scaled }
+\cs_new_eq:NN \mathdelim_print_auto_size: \mathdelim_option_scale_display:
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_print_auto:Nn}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_print_auto:Nn {
+  \use:c {
+    \mathdelim_print_csname:xN { \mathdelim_print_auto_size: } #1
+  } { #2 }
+}
+%    \end{macrocode}
+% \end{macro}
+% 
+%    \begin{macrocode}
+\cs_new_protected_nopar:cn {
+  \mathdelim_print_csname:xN { auto } \c_false_bool
+} {
+  \mathdelim_print_auto:Nn \c_false_bool { #1 }
+}
+\cs_new_protected_nopar:cn {
+  \mathdelim_print_csname:xN { auto } \c_true_bool
+} {
+  \mathdelim_print_auto:Nn \c_true_bool  { #1 }
+}
+%    \end{macrocode}
+%
+% \begin{option}{scale}
+%    \begin{macrocode}
+\mathdelim_new_choice_key_assign:nnN { scale } { display,~ always } \mathdelim_print_auto_size:
+%    \end{macrocode}
+% \end{option}
+%
+%    \begin{macrocode}
+\mathdelim_size_explicit_make:nNNN { 0, none }
+  \use_none:n
+  \use_none:n
+  \use_none:n
+\mathdelim_size_explicit_make:nNNN { 1, unscaled }
+  \mathdelim_unscaled_left:N
+  \mathdelim_unscaled:N
+  \mathdelim_unscaled_right:N
+\clist_gput_right:Nn \g_mathdelim_sizes_reserved_clist { unscaled }
+\mathdelim_size_explicit_make:nNNN { 2, big  } \bigl  \big  \bigr
+\mathdelim_size_explicit_make:nNNN { 3, Big  } \Bigl  \Big  \Bigr
+\mathdelim_size_explicit_make:nNNN { 4, bigg } \biggl \bigg \biggr
+\mathdelim_size_explicit_make:nNNN { 5, Bigg } \Biggl \Bigg \Biggr
+%    \end{macrocode}
+%
+%
+% \subsection{The \texttt{math-delim} object type}
+%
+% \begin{macro}{\l_mathdelim_beforeleft_tl}
+% \begin{macro}{\l_mathdelim_left_tl}
+% \begin{macro}{\l_mathdelim_afterleft_tl}
+% \begin{macro}{\l_mathdelim_beforeright_tl}
+% \begin{macro}{\l_mathdelim_right_tl}
+% \begin{macro}{\l_mathdelim_afterright_tl}
+% \begin{macro}{\l_mathdelim_macro_tl}
+%    \begin{macrocode}
+\tl_new:N \l_mathdelim_beforeleft_tl
+\tl_new:N \l_mathdelim_left_tl
+\tl_new:N \l_mathdelim_afterleft_tl
+\tl_new:N \l_mathdelim_beforeright_tl
+\tl_new:N \l_mathdelim_right_tl
+\tl_new:N \l_mathdelim_afterright_tl
+\tl_new:N \l_mathdelim_macro_tl
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \begin{l3objtype}{math-delim}
+%    \begin{macrocode}
+\DeclareObjectType { math-delim } { 3 }
+%    \end{macrocode}
+% \end{l3objtype}
+%
+% \begin{l3template}{basic}
+%    \begin{macrocode}
+% If templates are nested, the keys of the inner instances are inherited from the outer ones!!!!
+\DeclareTemplateInterface { math-delim } { basic } { 3 } {
+  before-left  : tokenlist = { },
+  left         : tokenlist = \mathdelim_nulldelim: ,
+  after-left   : tokenlist = { },
+  before-right : tokenlist = { },
+  right        : tokenlist = \mathdelim_nulldelim: ,
+  after-right  : tokenlist = { },
+  macro        : tokenlist = { }
+}
+\DeclareTemplateCode { math-delim } { basic } { 3 } {
+  before-left  = \l_mathdelim_beforeleft_tl,
+  left         = \l_mathdelim_left_tl,
+  after-left   = \l_mathdelim_afterleft_tl,
+  before-right = \l_mathdelim_beforeright_tl,
+  right        = \l_mathdelim_right_tl,
+  after-right  = \l_mathdelim_afterright_tl,
+  macro        = \l_mathdelim_macro_tl
+} {
+  \group_begin:
+  \AssignTemplateKeys
+  \mathdelim_print:nNn { #1 } #2 { #3 }
+  \group_end:
+}
+%    \end{macrocode}
+% \end{l3template}
+%
+%
+% \subsection{Command declarations}
+%
+% \begin{macro}{\mathdelim_inst_name:N}
+% |\mathdelim_inst_name:N|\meta{command}
+%    \begin{macrocode}
+\cs_new_nopar:Nn \mathdelim_inst_name:N {
+  \cs_to_str:N #1
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_inst_make:Nn}
+% |\mathdelim_inst_make:Nn|\meta{command}\marg{settings}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_inst_make:Nn {
+  \DeclareInstance { math-delim } { \mathdelim_inst_name:N #1 }
+    { basic } { #2 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_helper_csname:Nn}
+% |\mathdelim_helper_csname:Nn|\meta{command}\marg{args}
+%    \begin{macrocode}
+\cs_new_nopar:Nn \mathdelim_helper_csname:Nn {
+  mathdelim_helper_
+  \cs_to_str:N #1
+  :
+  \prg_replicate:nn { #2 } { n }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_param:n}
+%    \begin{macrocode}
+\cs_new_nopar:Nn \mathdelim_param:n {
+  { ## ## #1 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_cmd_complex_make:Nnnn}
+% |\mathdelim_cmd_complex_make:Nnnn|\meta{command}\marg{settings}\marg{args}\marg{code}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_cmd_complex_make:Nnnn {
+  \tl_set:Nx \l_mathdelim_name_tl {
+    \mathdelim_helper_csname:Nn #1 { #3 }
+  }
+  \cs_set_protected_nopar:cn { \l_mathdelim_name_tl } { #4 }
+  \mathdelim_execute:x {
+    \mathdelim_inst_make:Nn \exp_not:N #1 {
+      \exp_not:n { #2 },
+      macro = \use:c { \l_mathdelim_name_tl }
+    }
+    \DeclareDocumentCommand \exp_not:N #1 {
+      s O{auto} \prg_replicate:nn { #3 } { m }
+    } {
+      \mathdelim_ensure_math_mode:Nn \exp_not:N #1 {
+        \UseInstance { math-delim } { \mathdelim_inst_name:N #1 }
+          { ####2 } ####1 {
+          \prg_stepwise_function:nnnN { 3 } { 1 } { 2 + #3 }
+            \mathdelim_param:n
+        }
+      }
+    }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_cmd_simple_make:Nn}
+% |\mathdelim_cmd_simple_make:Nn|\meta{command}\marg{settings}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_cmd_simple_make:Nn {
+  \mathdelim_inst_make:Nn #1 {
+    #2,
+    macro = { }
+  }
+  \DeclareDocumentCommand #1 { s O{auto} m } {
+    \mathdelim_ensure_math_mode:Nn #1 {
+      \UseInstance { math-delim } { \mathdelim_inst_name:N #1 }
+        { ##2 } ##1 { ##3 }
+    }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsection{The public interface}
+%
+% \subsubsection{Setup commands}
+%
+% \begin{macro}{\SetupMathDelimiters}
+%    \begin{macrocode}
+\NewDocumentCommand \SetupMathDelimiters { m } {
+  \setkeys { mathdelim } { #1 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\DeclareDelimiterSize}
+%    \begin{macrocode}
+\NewDocumentCommand \DeclareDelimiterSize { m m m m } {
+  \mathdelim_size_explicit_make:nNNN { #1 } #2 #3 #4
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\UndeclareDelimiterSize}
+%    \begin{macrocode}
+\NewDocumentCommand \UndeclareDelimiterSize { m } {
+  \mathdelim_size_remove:n { #1 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\DeclareComplexDelimiterCommand}
+%    \begin{macrocode}
+\NewDocumentCommand \DeclareComplexDelimiterCommand { m m m m } {
+  \mathdelim_cmd_complex_make:Nnnn #1 { #2 } { #3 } { #4 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{l3message}{command-already-defined}
+%    \begin{macrocode}
+\msg_new:nnn { mathdelim } { command-already-defined } {%
+  Command `#1' already defined%
+}
+%    \end{macrocode}
+% \end{l3message}
+%
+% \begin{macro}{\NewComplexDelimiterCommand}
+%    \begin{macrocode}
+\NewDocumentCommand \NewComplexDelimiterCommand { m m m m } {
+  \cs_if_exist:NTF #1 {
+    \msg_error:nnx { mathdelim } { command-already-defined }
+      { \token_to_str:N #1 }
+  } {
+    \mathdelim_cmd_complex_make:Nnnn #1 { #2 } { #3 } { #4 }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{l3message}{command-not-yet-defined}
+%    \begin{macrocode}
+\msg_new:nnn { mathdelim } { command-not-yet-defined } {%
+  Command `#1' not yet defined%
+}
+%    \end{macrocode}
+% \end{l3message}
+%
+% \begin{macro}{\RenewComplexDelimiterCommand}
+%    \begin{macrocode}
+\NewDocumentCommand \RenewComplexDelimiterCommand { m m m m } {
+  \cs_if_exist:NTF #1 {
+    \mathdelim_cmd_complex_make:Nnnn #1 { #2 } { #3 } { #4 }
+  } {
+    \msg_error:nnx { mathdelim } { command-not-yet-defined }
+      { \token_to_str:N #1 }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ProvideComplexDelimiterCommand}
+%    \begin{macrocode}
+\NewDocumentCommand \ProvideComplexDelimiterCommand { m m m m } {
+  \cs_if_exist:NF #1 {
+    \mathdelim_cmd_complex_make:Nnnn #1 { #2 } { #3 } { #4 }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\DeclareSimpleDelimiterCommand}
+%    \begin{macrocode}
+\NewDocumentCommand \DeclareSimpleDelimiterCommand { m m } {
+  \mathdelim_cmd_simple_make:Nn #1 { #2 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\NewSimpleDelimiterCommand}
+%    \begin{macrocode}
+\NewDocumentCommand \NewSimpleDelimiterCommand { m m } {
+  \cs_if_exist:NTF #1 {
+    \msg_error:nnx { mathdelim } { command-already-defined }
+      { \token_to_str:N #1 }
+  } {
+    \mathdelim_cmd_simple_make:Nn #1 { #2 }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\RenewSimpleDelimiterCommand}
+%    \begin{macrocode}
+\NewDocumentCommand \RenewSimpleDelimiterCommand { m m } {
+  \cs_if_exist:NTF #1 {
+    \mathdelim_cmd_simple_make:Nn #1 { #2 }
+  } {
+    \msg_error:nnx { mathdelim } { command-not-yet-defined }
+      { \token_to_str:N #1 }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ProvideSimpleDelimiterCommand}
+%    \begin{macrocode}
+\NewDocumentCommand \ProvideSimpleDelimiterCommand { m m } {
+  \cs_if_exist:NF #1 {
+    \mathdelim_cmd_simple_make:Nn #1 { #2 }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsubsection{Document commands}
+%
+% \begin{macro}{\mathdelim}
+% |\mathdelim*|\oarg{size}\marg{settings}\marg{content}
+%    \begin{macrocode}
+\NewDocumentCommand { \mathdelim } { s O{auto} m m } {
+  \UseTemplate { math-delim } { basic } {
+    #3,
+    macro = { }
+  } { #2 } #1 { #4 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\middledelim}
+%    \begin{macrocode}
+\NewDocumentCommand \middledelim { m } {
+  \mathdelim_middle:N #1
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathvcenter}
+%    \begin{macrocode}
+\NewDocumentCommand \mathvcenter { m } {
+  \mathdelim_ensure_math_mode:Nn \mathvcenter {
+    \mathdelim_vcenter:n { #1 }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsection{Method of declaring predefined user commands}
+%
+% \begin{macro}{\mathdelim_predef_complex_make:Nnnn}
+% \begin{macro}{\mathdelim_predef_simple_make:Nn}
+% \begin{macro}{\c_mathdelim_predef_methods_tl}
+%    \begin{macrocode}
+\chk_if_free_cs:N \mathdelim_predef_complex_make:Nnnn
+\chk_if_free_cs:N \mathdelim_predef_simple_make:Nn
+\tl_new:Nn \c_mathdelim_predef_methods_tl {
+  %
+}
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_predef_method_select:NN}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_predef_method_select:NN {
+  \cs_gset_eq:NN \mathdelim_predef_complex_make:Nnnn #1
+  \cs_gset_eq:NN \mathdelim_predef_simple_make:Nn    #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_predef_method_none:}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_option_method_none: {
+  \mathdelim_predef_method_select:NN
+    \use_none:Nnnn
+    \use_none:Nn
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_predef_method_declare:}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_option_method_declare: {
+  \mathdelim_predef_method_select:NN
+    \DeclareComplexDelimiterCommand
+    \DeclareSimpleDelimiterCommand
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_predef_method_new:}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_option_method_new: {
+  \mathdelim_predef_method_select:NN
+    \NewComplexDelimiterCommand
+    \NewSimpleDelimiterCommand
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_predef_method_provide:}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_option_method_provide: {
+  \mathdelim_predef_method_select:NN
+    \ProvideComplexDelimiterCommand
+    \ProvideSimpleDelimiterCommand
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+\mathdelim_option_method_new:
+%    \end{macrocode}
+%
+% \begin{option}{method}
+%    \begin{macrocode}
+\mathdelim_new_choice_key_exec:nn { method }
+  { none,~ declare,~ new,~ provide }
+% ??? \DeclareLocalOption documented, but not implemented
+%    \end{macrocode}
+% \end{option}
+%
+%
+% \subsection{Various options}
+%
+% \begin{macro}{\l_mathdelim_script_attach_delim_bool}
+%    \begin{macrocode}
+\bool_new:N \l_mathdelim_script_attach_delim_bool
+\bool_set_true:N \l_mathdelim_script_attach_delim_bool
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{option}{script-attach-delim}
+%    \begin{macrocode}
+\mathdelim_new_bool_key_assign:nN { script-attach-delim } \l_mathdelim_script_attach_delim_bool
+%    \end{macrocode}
+% \end{option}
+%
+%
+% \subsection{Parameters for predefined delimiter commands}
+%
+% \begin{macro}{\l_mathdelim_set_delim_muskip}
+%    \begin{macrocode}
+\muskip_new:N \l_mathdelim_set_delim_muskip
+\muskip_set:Nn \l_mathdelim_set_delim_muskip
+  { 2 mu~ plus~ 1 mu~ minus~ 2 mu~ }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{option}{set-delim-skip}
+%    \begin{macrocode}
+\define@key { mathdelim } { set-delim-skip } {
+  \muskip_set:Nn \l_mathdelim_set_delim_muskip { #1 }
+}
+%    \end{macrocode}
+% \end{option}
+%
+% \begin{macro}{\l_mathdelim_setprop_sep_tl}
+%    \begin{macrocode}
+\tl_new:N \l_mathdelim_setprop_sep_tl
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{option}{setprop-sep}
+%    \begin{macrocode}
+\define@key { mathdelim } { setprop-sep } {
+  \tl_set:Nn \l_mathdelim_setprop_sep_tl { #1 }
+}
+%    \end{macrocode}
+% \end{option}
+%
+% \begin{macro}{\l_mathdelim_setprop_sep_muskip}
+%    \begin{macrocode}
+\muskip_new:N \l_mathdelim_setprop_sep_muskip
+\muskip_set:Nn \l_mathdelim_setprop_sep_muskip
+  { 4 mu~ plus~ 3 mu~ minus~ 2 mu~ }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{option}{setprop-sep-skip}
+%    \begin{macrocode}
+\define@key { mathdelim } { setprop-sep-skip } {
+  \muskip_set:Nn \l_mathdelim_setprop_sep_muskip { #1 }
+}
+%    \end{macrocode}
+% \end{option}
+%
+% \begin{macro}{\l_mathdelim_interval_left_open_tl}
+% \begin{macro}{\l_mathdelim_interval_right_open_tl}
+%    \begin{macrocode}
+\tl_new:N \l_mathdelim_interval_left_open_tl
+\tl_new:N \l_mathdelim_interval_right_open_tl
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_interval_select:NN}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_interval_select:NN {
+  \tl_set:Nn \l_mathdelim_interval_left_open_tl  { #1 }
+  \tl_set:Nn \l_mathdelim_interval_right_open_tl { #2 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_option_interval_traditional:}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_option_interval_traditional: {
+  \mathdelim_interval_select:NN ( )
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_option_interval_modern:}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_option_interval_modern: {
+  \mathdelim_interval_select:NN \rbrack \lbrack
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{option}{interval}
+%    \begin{macrocode}
+\mathdelim_new_choice_key_exec:nn { interval } { traditional,~ modern }
+%    \end{macrocode}
+% \end{option}
+%
+%    \begin{macrocode}
+\mathdelim_option_interval_traditional:
+%    \end{macrocode}
+%
+%
+% \subsection{Language support}
+%
+% \begin{macro}{\mathdelim_language_english:}
+%    \begin{macrocode}
+\cs_new:Nn \mathdelim_language_english: {
+  \tl_set:Nn \l_mathdelim_setprop_sep_tl { \tex_mathord:D : }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_language_french:}
+%    \begin{macrocode}
+\cs_new:Nn \mathdelim_language_french:  {
+  \tl_set:Nn \l_mathdelim_setprop_sep_tl { \middledelim \vert }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_babel_extra:nn}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_babel_extra:nn {
+  \clist_map_inline:nn { #1 } {
+    \cs_if_exist:cT { extras ##1 } {
+      \tl_gput_right:cn { extras ##1 } { #2 }
+    }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_after_polyglossia_lang:nn}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_after_polyglossia_lang:nn {
+  \cs_if_exist:cTF { #1 @loaded } {
+    #2
+  } {
+    \mathdelim_after_file:nn { gloss- #1 .ldf } { #2 }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_polyglossia_extra:nn}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_polyglossia_extra:nn {
+  \clist_map_inline:nn { #1 } {
+    \mathdelim_after_polyglossia_lang:nn { ##1 } {
+      \tl_gput_right:cn { blockextras@  ##1 } { #2 }
+      \tl_gput_right:cn { inlineextras@ ##1 } { #2 }
+    }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%    \begin{macrocode}
+\mathdelim_after_package:nn { babel } {
+  \mathdelim_babel_extra:nn {
+    english, USenglish, american,
+    UKenglish, british,
+    canadian, australian, newzealand,
+    polish,
+    italian,
+    spanish
+  } {
+    \mathdelim_language_english:
+  }
+  \mathdelim_babel_extra:nn {
+    german, germanb, ngerman, austrian, naustrian,
+    french, francais, canadien, acadien,
+    danish
+  } {
+    \mathdelim_language_french:
+  }
+}
+\mathdelim_after_package:nn { polyglossia } {
+  \mathdelim_polyglossia_extra:nn {
+    english,
+    polish,
+    italian,
+    spanish
+  } {
+    \mathdelim_language_english:
+  }
+  \mathdelim_polyglossia_extra:nn {
+    german,
+    french,
+    danish
+  } {
+    \mathdelim_language_french:
+  }
+}
+\mathdelim_language_english:
+%    \end{macrocode}
+%
+%
+% \subsection{Option processing}
+%
+%    \begin{macrocode}
+\DeclareLocalOptions {
+  method,
+  scale,
+  script-attach-delim,
+  set-delim-skip,
+  setprop-sep,
+  setprop-sep-skip,
+  interval
+}
+\ProcessKeyvalOptions { mathdelim }
+\DisableKeyvalOption { mathdelim } { method }
+%    \end{macrocode}
+%
+%
+% \subsection{Predefined delimiter commands}
+%
+% \subsubsection{Generic delimiters}
+%
+% \begin{macro}{\parens}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \parens {
+  left  = (,
+  right = )
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\brackets}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \brackets {
+  left  = \lbrack,
+  right = \rbrack
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\braces}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \braces {
+  left  = \lbrace,
+  right = \rbrace
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\angles}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \chevrons {
+  left  = \langle,
+  right = \rangle
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsubsection{Specific commands for mathematical notations}
+%
+% \begin{macro}{\mathdelim_set_delim_skip_put:}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_set_delim_skip_put: {
+  \tex_nonscript:D \tex_mskip:D \l_mathdelim_set_delim_muskip
+}
+%    \end{macrocode}
+% \end{macro}
+% 
+% \begin{macro}{\set}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \set {
+  left         = \lbrace,
+  after-left   = \mathdelim_set_delim_skip_put:,
+  before-right = \mathdelim_set_delim_skip_put:,
+  right        = \rbrace
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_setprop_sep_skip_put:}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_setprop_sep_skip_put: {
+  \tex_nonscript:D \tex_mskip:D \l_mathdelim_setprop_sep_muskip
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\setprop}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \setprop {
+  left         = \lbrace,
+  after-left   = \mathdelim_set_delim_skip_put: ,
+  before-right = \mathdelim_set_delim_skip_put: ,
+  right        = \rbrace
+} { 2 } {
+  #1
+  \mathdelim_setprop_sep_skip_put:
+  \l_mathdelim_setprop_sep_tl
+  \mathdelim_setprop_sep_skip_put:
+  #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\cinterval}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \cinterval {
+  left  = \lbrack,
+  right = \rbrack
+} { 2 } {
+  #1
+  ,
+  #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\lointerval}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \lointerval {
+  left  = \l_mathdelim_interval_left_open_tl,
+  right = \rbrack
+} { 2 } {
+  #1
+  ,
+  #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\rointerval}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \rointerval {
+  left  = \lbrack,
+  right = \l_mathdelim_interval_right_open_tl
+} { 2 } {
+  #1
+  ,
+  #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ointerval}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \ointerval {
+  left  = \l_mathdelim_interval_left_open_tl,
+  right = \l_mathdelim_interval_right_open_tl
+} { 2 } {
+  #1
+  ,
+  #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\eval}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \eval {
+  right = \vert
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\innerprod}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \innerprod {
+  left  = \langle,
+  right = \rangle
+} { 2 } {
+  #1
+  ,
+  #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\abs}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \abs {
+  left  = \vert,
+  right = \vert
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\norm}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \norm {
+  left  = \Vert,
+  right = \Vert
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\floor}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \floor {
+  left  = \lfloor,
+  right = \rfloor
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ceil}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \ceil {
+  left  = \lceil,
+  right = \rceil
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsubsection{Specific commands for physical notations}
+%
+% \begin{macro}{\average}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \average {
+  left  = \langle,
+  right = \rangle
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\commutator}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \commutator {
+  left  = \lbrack,
+  right = \rbrack
+} { 2 } {
+  #1
+  ,
+  #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\anticommutator}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \anticommutator {
+  left  = \lbrace,
+  right = \rbrace
+} { 2 } {
+  #1
+  ,
+  #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\bra}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \bra {
+  left  = \langle,
+  right = \vert
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ket}
+%    \begin{macrocode}
+\mathdelim_predef_simple_make:Nn \ket {
+  left  = \vert,
+  right = \rangle
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\braket}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \braket {
+  left  = \langle,
+  right = \rangle
+} { 2 } {
+  #1
+  \middledelim \vert
+  #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\braopket}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \braopket {
+  left  = \langle,
+  right = \rangle
+} { 3 } {
+  #1
+  \middledelim \vert
+  #2
+  \middledelim \vert
+  #3
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ketbra}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \ketbra {
+  left  = \vert,
+  right = \vert
+} { 2 } {
+  #1
+  \middledelim \rangle
+  \middledelim \langle
+  #2
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\ketbraket}
+%    \begin{macrocode}
+\mathdelim_predef_complex_make:Nnnn \ketbraket {
+  left  = \vert,
+  right = \rangle
+} { 3 } {
+  #1
+  \middledelim \rangle
+  \middledelim \langle
+  #2
+  \middledelim \vert
+  #3
+}
+%    \end{macrocode}
+% \end{macro}
+%</package>
+%    \end{macrocode}
+%
+% \Finale
+\endinput
