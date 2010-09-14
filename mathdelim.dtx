@@ -243,8 +243,8 @@
 % \DescribeMacro{\parens}
 % \DescribeMacro{\brackets}
 % \DescribeMacro{\braces}
-% \DescribeMacro{\angles}
-% The four general-purpose commands \cmd{\p}\marg{expression}, \cmd{\brackets}\marg{expression}, \cmd{\braces}\marg{expression} and \cmd{\angles}\marg{expression} enclose their sole required argument \meta{expression} in round, square, curly and angle brackets, respectively.
+% \DescribeMacro{\chevrons}
+% The four general-purpose commands \cmd{\p}\marg{expression}, \cmd{\brackets}\marg{expression}, \cmd{\braces}\marg{expression} and \cmd{\chevrons}\marg{expression} enclose their sole required argument \meta{expression} in round, square, curly and angle brackets, respectively.
 % An overview about these commands can be found in \autoref{GenericCommands}.
 % They can be used as scaled variants of the |(...)|, |[...]|, |\{...\}| and |\langle...\rangle| sequences; for specific expressions like set notation the specialized cimmands described below are usually better suited, as they take care of some particularities and increase the overall expressiveness of documents.
 %
@@ -255,7 +255,7 @@
 %   \cmd{\p} & Parentheses & \tblmath{\parens{\cdots}} \\
 %   \cmd{\brackets} & Square brackets & \tblmath{\brackets{\cdots}} \\
 %   \cmd{\braces} & Curly braces & \tblmath{\braces{\cdots}} \\
-%   \cmd{\angles} & Angle brackets & \tblmath{\angles{\cdots}}
+%   \cmd{\chevrons} & Angle brackets & \tblmath{\chevrons{\cdots}}
 % \end{doctable}
 %
 %
@@ -1589,7 +1589,7 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{macro}{\angles}
+% \begin{macro}{\chevrons}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \chevrons {
   left  = \langle,
@@ -1865,10 +1865,9 @@
   \middledelim \vert
   #3
 }
-%    \end{macrocode}
-% \end{macro}
 %</package>
 %    \end{macrocode}
+% \end{macro}
 %
 % \Finale
 \endinput
