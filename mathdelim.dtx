@@ -63,12 +63,13 @@
 %   Right brace   \}     Tilde         \~}
 %
 %
-% \changes{v0.1}{2010/01/12}{Initial version}
+% \changes{v0.1a}{2010/01/12}{Initial version}
 %
 % \GetFileInfo{mathdelim.sty}
 %
 % \title{The \thispackage package\thanks{This document corresponds to \thispackage{}~\fileversion, dated~\filedate.}}
 % \author{Philipp Stephani \\ \texttt{st\_philipp@yahoo.de}}
+% \date{\filedate}
 %
 %
 % \maketitle
@@ -409,11 +410,11 @@
 \NeedsTeXFormat{LaTeX2e}[2009/09/24]
 \RequirePackage{etex}[1998/03/26]
 \RequirePackage{expl3}[2009/11/02]
-\ProvidesExplPackage{mathdelim}{2010/01/13}{0.1}%
+\ProvidesExplPackage{mathdelim}{2010/09/15}{0.1a}%
   {Aliases for mathematical delimiters}
 \RequirePackage{xparse}[2009/11/06]
 \RequirePackage{xtemplate}[2009/11/16]
-\RequirePackage{kvoptions}[2009/12/08]
+\RequirePackage{l3keys2e}[2009/08/24]
 %    \end{macrocode}
 %
 %
@@ -471,15 +472,18 @@
 % |\mathdelim_new_choice_key:nnn|\marg{key name}\marg{values}\marg{code}
 %    \begin{macrocode}
 \cs_new_protected_nopar:Nn \mathdelim_new_choice_key:nnn {
-  \define@key { mathdelim } { #1 } {
-    \cs_if_exist:cTF { mathdelim_option_ #1 _ ##1 : } {
-      #3 { mathdelim_option_ #1 _ ##1 : }
-    } {
-      \msg_error:nnxxx { mathdelim } { unknown-setting }
-        { \tl_to_str:n { #1  } }
-        { \tl_to_str:n { ##1 } }
-        { \tl_to_str:n { #2  } }
-    }
+  \keys_define:nn { mathdelim } {
+    #1 .code:n = {
+      \cs_if_exist:cTF { mathdelim_option_ #1 _ ##1 : } {
+        #3 { mathdelim_option_ #1 _ ##1 : }
+      } {
+        \msg_error:nnxxx { mathdelim } { unknown-setting }
+          { \tl_to_str:n { #1  } }
+          { \tl_to_str:n { ##1 } }
+          { \tl_to_str:n { #2  } }
+      }
+    } ,
+    #1 .value_required:
   }
 }
 %    \end{macrocode}
@@ -504,15 +508,18 @@
 % \begin{macro}{\mathdelim_new_bool_key_assign:nN}
 %    \begin{macrocode}
 \cs_new_protected_nopar:Nn \mathdelim_new_bool_key_assign:nN {
-  \define@key { mathdelim } { #1 } {
-    \cs_if_exist:cTF { bool_set_ ##1 :N } {
-      \cs_use:c { bool_set_ ##1 :N } #2
-    } {
-      \msg_error:nnxxx { mathdelim } { unknown-setting }
-        { \tl_to_str:n { #1  } }
-        { \tl_so_str:n { ##1 } }
-        { false,~ true }
-    }
+  \keys_define:nn { mathdelim } {
+    #1 .code:n = {
+      \cs_if_exist:cTF { bool_set_ ##1 :N } {
+        \cs_use:c { bool_set_ ##1 :N } #2
+      } {
+        \msg_error:nnxxx { mathdelim } { unknown-setting }
+          { \tl_to_str:n { #1  } }
+          { \tl_so_str:n { ##1 } }
+          { false,~ true }
+      }
+    } ,
+    #1 .default:n = true
   }
 }
 %    \end{macrocode}
@@ -523,7 +530,7 @@
 %
 % \begin{macro}{\mathdelim_after_file:nn}
 % \begin{macro}{\mathdelim_after_package:nn}
-% |\mathdelim_after_file:nn|\marg{filename}\marg{code}
+% |\mathdelim_after_file:nn|\marg{filename}\marg{code} \\
 % |\mathdelim_after_package:nn|\marg{package}\marg{code}
 %    \begin{macrocode}
 \@ifclassloaded { memoir } {
@@ -841,7 +848,8 @@
 \cs_new_protected_nopar:Nn \mathdelim_size_remove_aux:n {
   \tl_set:Nx \l_mathdelim_size_tl { \tl_to_str:n { #1 } }
   \mathdelim_size_check:NT \l_mathdelim_size_tl {
-    \clist_gremove_element:NN \g_mathdelim_sizes_clist \l_mathdelim_size_tl
+    \clist_gremove_element:NN
+      \g_mathdelim_sizes_clist \l_mathdelim_size_tl
     \cs_gundefine:c {
       \mathdelim_print_csname:NN \l_mathdelim_size_tl \c_false_bool
     }
@@ -858,6 +866,65 @@
 %    \begin{macrocode}
 \cs_new_protected_nopar:Nn \mathdelim_size_remove:n {
   \clist_map_function:nn { #1 } \mathdelim_size_remove_aux:n
+}
+%    \end{macrocode}
+% \end{macro}
+%
+%
+% \subsection{Completion of manual sizing commands}
+%
+% \begin{macro}{\mathdelim_big_make:nnn}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_big_make:nnn {
+  \mathdelim_big_make_generic:nnn { #1 } { #2 } { #3 }
+  \mathdelim_big_make_class:n { #1 }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_big_make_generic:nnn}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_big_make_generic:nnn {
+  \exp_args:Nc \ProvideDocumentCommand { #1 } { m } {
+    {
+      \hbox:n {
+        \c_math_shift_token
+        \tex_left:D  ##1
+        \vbox_to_ht:nn { #2 } { }
+        \tex_right:D \mathdelim_nulldelim:
+        \n@space
+        \c_math_shift_token
+      }
+    }
+  }
+}
+%    \end{macrocode}
+%
+%    \begin{macrocode}
+\mathdelim_after_package:nn { amsmath } {
+  \cs_set_protected_nopar:Nn \mathdelim_big_make_generic:nnn {
+    \exp_args:Nc \ProvideDocumentCommand { #1 } { } {
+      \bBigg@ { #3 }
+    }
+  }
+}
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\mathdelim_big_make_class:n}
+%    \begin{macrocode}
+\cs_new_protected_nopar:Nn \mathdelim_big_make_class:n {
+  \mathdelim_execute:x {
+    \exp_not:N \ProvideDocumentCommand \exp_not:c { #1 l } { } {
+      \tex_mathopen:D \exp_not:c { #1 }
+    }
+    \exp_not:N \ProvideDocumentCommand \exp_not:c { #1 r } { } {
+      \tex_mathclose:D \exp_not:c { #1 }
+    }
+    \exp_not:N \ProvideDocumentCommand \exp_not:c { #1 m } { } {
+      \tex_mathrel:D \exp_not:c { #1 }
+    }
+  }
 }
 %    \end{macrocode}
 % \end{macro}
@@ -889,7 +956,8 @@
   \mathdelim_if_inline:TF { unscaled } { scaled }
 }
 \cs_new_nopar:Nn \mathdelim_option_scale_always: { scaled }
-\cs_new_eq:NN \mathdelim_print_auto_size: \mathdelim_option_scale_display:
+\cs_new_eq:NN
+  \mathdelim_print_auto_size: \mathdelim_option_scale_display:
 %    \end{macrocode}
 % \end{macro}
 % \end{macro}
@@ -920,7 +988,8 @@
 %
 % \begin{option}{scale}
 %    \begin{macrocode}
-\mathdelim_new_choice_key_assign:nnN { scale } { display,~ always } \mathdelim_print_auto_size:
+\mathdelim_new_choice_key_assign:nnN
+  { scale } { display,~ always } \mathdelim_print_auto_size:
 %    \end{macrocode}
 % \end{option}
 %
@@ -934,10 +1003,12 @@
   \mathdelim_unscaled:N
   \mathdelim_unscaled_right:N
 \clist_gput_right:Nn \g_mathdelim_sizes_reserved_clist { unscaled }
-\mathdelim_size_explicit_make:nNNN { 2, big  } \bigl  \big  \bigr
-\mathdelim_size_explicit_make:nNNN { 3, Big  } \Bigl  \Big  \Bigr
-\mathdelim_size_explicit_make:nNNN { 4, bigg } \biggl \bigg \biggr
-\mathdelim_size_explicit_make:nNNN { 5, Bigg } \Biggl \Bigg \Biggr
+\mathdelim_size_explicit_make:nNNN { 2, big   } \bigl   \big   \bigr
+\mathdelim_size_explicit_make:nNNN { 3, Big   } \Bigl   \Big   \Bigr
+\mathdelim_size_explicit_make:nNNN { 4, bigg  } \biggl  \bigg  \biggr
+\mathdelim_size_explicit_make:nNNN { 5, Bigg  } \Biggl  \Bigg  \Biggr
+\mathdelim_size_explicit_make:nNNN { 6, biggg } \bigggl \biggg \bigggr
+\mathdelim_size_explicit_make:nNNN { 7, Biggg } \Bigggl \Biggg \Bigggr
 %    \end{macrocode}
 %
 %
@@ -975,23 +1046,24 @@
 %
 % \begin{l3template}{basic}
 %    \begin{macrocode}
-% If templates are nested, the keys of the inner instances are inherited from the outer ones!!!!
+% If templates are nested, the keys of the inner instances are
+% inherited from the outer ones!!!!
 \DeclareTemplateInterface { math-delim } { basic } { 3 } {
-  before-left  : tokenlist = { },
+  before-left  : tokenlist = { }                   ,
   left         : tokenlist = \mathdelim_nulldelim: ,
-  after-left   : tokenlist = { },
-  before-right : tokenlist = { },
+  after-left   : tokenlist = { }                   ,
+  before-right : tokenlist = { }                   ,
   right        : tokenlist = \mathdelim_nulldelim: ,
-  after-right  : tokenlist = { },
+  after-right  : tokenlist = { }                   ,
   macro        : tokenlist = { }
 }
 \DeclareTemplateCode { math-delim } { basic } { 3 } {
-  before-left  = \l_mathdelim_beforeleft_tl,
-  left         = \l_mathdelim_left_tl,
-  after-left   = \l_mathdelim_afterleft_tl,
-  before-right = \l_mathdelim_beforeright_tl,
-  right        = \l_mathdelim_right_tl,
-  after-right  = \l_mathdelim_afterright_tl,
+  before-left  = \l_mathdelim_beforeleft_tl  ,
+  left         = \l_mathdelim_left_tl        ,
+  after-left   = \l_mathdelim_afterleft_tl   ,
+  before-right = \l_mathdelim_beforeright_tl ,
+  right        = \l_mathdelim_right_tl       ,
+  after-right  = \l_mathdelim_afterright_tl  ,
   macro        = \l_mathdelim_macro_tl
 } {
   \group_begin:
@@ -1054,7 +1126,7 @@
   \cs_set_protected_nopar:cn { \l_mathdelim_name_tl } { #4 }
   \mathdelim_execute:x {
     \mathdelim_inst_make:Nn \exp_not:N #1 {
-      \exp_not:n { #2 },
+      \exp_not:n { #2 } ,
       macro = \use:c { \l_mathdelim_name_tl }
     }
     \DeclareDocumentCommand \exp_not:N #1 {
@@ -1078,7 +1150,7 @@
 %    \begin{macrocode}
 \cs_new_protected_nopar:Nn \mathdelim_cmd_simple_make:Nn {
   \mathdelim_inst_make:Nn #1 {
-    #2,
+    #2 ,
     macro = { }
   }
   \DeclareDocumentCommand #1 { s O{auto} m } {
@@ -1099,7 +1171,7 @@
 % \begin{macro}{\SetupMathDelimiters}
 %    \begin{macrocode}
 \NewDocumentCommand \SetupMathDelimiters { m } {
-  \setkeys { mathdelim } { #1 }
+  \keys_set:nn { mathdelim } { #1 }
 }
 %    \end{macrocode}
 % \end{macro}
@@ -1232,7 +1304,7 @@
 %    \begin{macrocode}
 \NewDocumentCommand { \mathdelim } { s O{auto} m m } {
   \UseTemplate { math-delim } { basic } {
-    #3,
+    #3 ,
     macro = { }
   } { #2 } #1 { #4 }
 }
@@ -1245,6 +1317,30 @@
   \mathdelim_middle:N #1
 }
 %    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\biggg}
+% \begin{macro}{\bigggl}
+% \begin{macro}{\bigggm}
+% \begin{macro}{\bigggr}
+%    \begin{macrocode}
+\mathdelim_big_make:nnn { biggg } { 20.5pt } { 3 }
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+% \end{macro}
+%
+% \begin{macro}{\biggg}
+% \begin{macro}{\bigggl}
+% \begin{macro}{\bigggm}
+% \begin{macro}{\bigggr}
+%    \begin{macrocode}
+\mathdelim_big_make:nnn { Biggg } { 23.5pt } { 3.5 }
+%    \end{macrocode}
+% \end{macro}
+% \end{macro}
+% \end{macro}
 % \end{macro}
 %
 % \begin{macro}{\mathvcenter}
@@ -1331,7 +1427,6 @@
 %    \begin{macrocode}
 \mathdelim_new_choice_key_exec:nn { method }
   { none,~ declare,~ new,~ provide }
-% ??? \DeclareLocalOption documented, but not implemented
 %    \end{macrocode}
 % \end{option}
 %
@@ -1362,27 +1457,11 @@
 %    \end{macrocode}
 % \end{macro}
 %
-% \begin{option}{set-delim-skip}
-%    \begin{macrocode}
-\define@key { mathdelim } { set-delim-skip } {
-  \muskip_set:Nn \l_mathdelim_set_delim_muskip { #1 }
-}
-%    \end{macrocode}
-% \end{option}
-%
 % \begin{macro}{\l_mathdelim_setprop_sep_tl}
 %    \begin{macrocode}
 \tl_new:N \l_mathdelim_setprop_sep_tl
 %    \end{macrocode}
 % \end{macro}
-%
-% \begin{option}{setprop-sep}
-%    \begin{macrocode}
-\define@key { mathdelim } { setprop-sep } {
-  \tl_set:Nn \l_mathdelim_setprop_sep_tl { #1 }
-}
-%    \end{macrocode}
-% \end{option}
 %
 % \begin{macro}{\l_mathdelim_setprop_sep_muskip}
 %    \begin{macrocode}
@@ -1392,12 +1471,25 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{option}{set-delim-skip}
+% \begin{option}{setprop-sep}
 % \begin{option}{setprop-sep-skip}
 %    \begin{macrocode}
-\define@key { mathdelim } { setprop-sep-skip } {
-  \muskip_set:Nn \l_mathdelim_setprop_sep_muskip { #1 }
+% .muskip_set:N property is missing!
+\keys_define:nn { mathdelim } {
+  set-delim-skip   .code:n
+    = \muskip_set:Nn \l_mathdelim_set_delim_muskip   { #1 } ,
+  set-delim-skip   .value_required:                         ,
+  setprop-sep      .tl_set:N
+    = \l_mathdelim_setprop_sep_tl                           ,
+  setprop-sep      .value_required:                         ,
+  setprop-sep-skip .code:n
+    = \muskip_set:Nn \l_mathdelim_setprop_sep_muskip { #1 } ,
+  setprop-sep-skip .value_required:
 }
 %    \end{macrocode}
+% \end{option}
+% \end{option}
 % \end{option}
 %
 % \begin{macro}{\l_mathdelim_interval_left_open_tl}
@@ -1544,17 +1636,9 @@
 % \subsection{Option processing}
 %
 %    \begin{macrocode}
-\DeclareLocalOptions {
-  method,
-  scale,
-  script-attach-delim,
-  set-delim-skip,
-  setprop-sep,
-  setprop-sep-skip,
-  interval
-}
-\ProcessKeyvalOptions { mathdelim }
-\DisableKeyvalOption { mathdelim } { method }
+\ProcessKeysPackageOptions { mathdelim }
+% no analog to \DisableKeyvalOption yet
+%\DisableKeyvalOption { mathdelim } { method }
 %    \end{macrocode}
 %
 %
@@ -1565,7 +1649,7 @@
 % \begin{macro}{\parens}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \parens {
-  left  = (,
+  left  = ( ,
   right = )
 }
 %    \end{macrocode}
@@ -1574,7 +1658,7 @@
 % \begin{macro}{\brackets}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \brackets {
-  left  = \lbrack,
+  left  = \lbrack ,
   right = \rbrack
 }
 %    \end{macrocode}
@@ -1583,7 +1667,7 @@
 % \begin{macro}{\braces}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \braces {
-  left  = \lbrace,
+  left  = \lbrace ,
   right = \rbrace
 }
 %    \end{macrocode}
@@ -1592,7 +1676,7 @@
 % \begin{macro}{\chevrons}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \chevrons {
-  left  = \langle,
+  left  = \langle ,
   right = \rangle
 }
 %    \end{macrocode}
@@ -1612,9 +1696,9 @@
 % \begin{macro}{\set}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \set {
-  left         = \lbrace,
-  after-left   = \mathdelim_set_delim_skip_put:,
-  before-right = \mathdelim_set_delim_skip_put:,
+  left         = \lbrace                        ,
+  after-left   = \mathdelim_set_delim_skip_put: ,
+  before-right = \mathdelim_set_delim_skip_put: ,
   right        = \rbrace
 }
 %    \end{macrocode}
@@ -1631,7 +1715,7 @@
 % \begin{macro}{\setprop}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \setprop {
-  left         = \lbrace,
+  left         = \lbrace                        ,
   after-left   = \mathdelim_set_delim_skip_put: ,
   before-right = \mathdelim_set_delim_skip_put: ,
   right        = \rbrace
@@ -1648,7 +1732,7 @@
 % \begin{macro}{\cinterval}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \cinterval {
-  left  = \lbrack,
+  left  = \lbrack ,
   right = \rbrack
 } { 2 } {
   #1
@@ -1661,7 +1745,7 @@
 % \begin{macro}{\lointerval}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \lointerval {
-  left  = \l_mathdelim_interval_left_open_tl,
+  left  = \l_mathdelim_interval_left_open_tl ,
   right = \rbrack
 } { 2 } {
   #1
@@ -1674,7 +1758,7 @@
 % \begin{macro}{\rointerval}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \rointerval {
-  left  = \lbrack,
+  left  = \lbrack ,
   right = \l_mathdelim_interval_right_open_tl
 } { 2 } {
   #1
@@ -1687,7 +1771,7 @@
 % \begin{macro}{\ointerval}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \ointerval {
-  left  = \l_mathdelim_interval_left_open_tl,
+  left  = \l_mathdelim_interval_left_open_tl ,
   right = \l_mathdelim_interval_right_open_tl
 } { 2 } {
   #1
@@ -1708,7 +1792,7 @@
 % \begin{macro}{\innerprod}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \innerprod {
-  left  = \langle,
+  left  = \langle ,
   right = \rangle
 } { 2 } {
   #1
@@ -1721,7 +1805,7 @@
 % \begin{macro}{\abs}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \abs {
-  left  = \vert,
+  left  = \vert ,
   right = \vert
 }
 %    \end{macrocode}
@@ -1730,7 +1814,7 @@
 % \begin{macro}{\norm}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \norm {
-  left  = \Vert,
+  left  = \Vert ,
   right = \Vert
 }
 %    \end{macrocode}
@@ -1739,7 +1823,7 @@
 % \begin{macro}{\floor}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \floor {
-  left  = \lfloor,
+  left  = \lfloor ,
   right = \rfloor
 }
 %    \end{macrocode}
@@ -1748,7 +1832,7 @@
 % \begin{macro}{\ceil}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \ceil {
-  left  = \lceil,
+  left  = \lceil ,
   right = \rceil
 }
 %    \end{macrocode}
@@ -1760,7 +1844,7 @@
 % \begin{macro}{\average}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \average {
-  left  = \langle,
+  left  = \langle ,
   right = \rangle
 }
 %    \end{macrocode}
@@ -1769,7 +1853,7 @@
 % \begin{macro}{\commutator}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \commutator {
-  left  = \lbrack,
+  left  = \lbrack ,
   right = \rbrack
 } { 2 } {
   #1
@@ -1782,7 +1866,7 @@
 % \begin{macro}{\anticommutator}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \anticommutator {
-  left  = \lbrace,
+  left  = \lbrace ,
   right = \rbrace
 } { 2 } {
   #1
@@ -1795,7 +1879,7 @@
 % \begin{macro}{\bra}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \bra {
-  left  = \langle,
+  left  = \langle ,
   right = \vert
 }
 %    \end{macrocode}
@@ -1804,7 +1888,7 @@
 % \begin{macro}{\ket}
 %    \begin{macrocode}
 \mathdelim_predef_simple_make:Nn \ket {
-  left  = \vert,
+  left  = \vert ,
   right = \rangle
 }
 %    \end{macrocode}
@@ -1813,7 +1897,7 @@
 % \begin{macro}{\braket}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \braket {
-  left  = \langle,
+  left  = \langle ,
   right = \rangle
 } { 2 } {
   #1
@@ -1826,7 +1910,7 @@
 % \begin{macro}{\braopket}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \braopket {
-  left  = \langle,
+  left  = \langle ,
   right = \rangle
 } { 3 } {
   #1
@@ -1841,7 +1925,7 @@
 % \begin{macro}{\ketbra}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \ketbra {
-  left  = \vert,
+  left  = \vert ,
   right = \vert
 } { 2 } {
   #1
@@ -1855,7 +1939,7 @@
 % \begin{macro}{\ketbraket}
 %    \begin{macrocode}
 \mathdelim_predef_complex_make:Nnnn \ketbraket {
-  left  = \vert,
+  left  = \vert ,
   right = \rangle
 } { 3 } {
   #1
