@@ -4,6 +4,7 @@ DTX := $(PKG).dtx
 INS := $(PKG).ins
 STY := $(PKG).sty
 PDF := $(PKG).pdf
+EL := $(PKG).el
 IDXSRC := $(PKG).idx
 IDXDST := $(PKG).ind
 IDXSTY := gind.ist
@@ -17,6 +18,7 @@ OBJECTS := $(STY) $(PDF)
 TEXMF := $(shell kpsewhich --var-value=TEXMFHOME)
 STYDIR := $(TEXMF)/tex/latex/phst
 PDFDIR := $(TEXMF)/doc/latex/phst
+ELDIR := ~/.emacs.d/auctex/style/phst
 
 INSTALL := install
 MKTEXLSR := mktexlsr
@@ -28,13 +30,15 @@ FINALFLAGS := --synctex=1
 MAKEINDEX := makeindex
 
 
-all: package doc
+all: package doc auctex-style
 
 package: $(STY)
 
 doc: $(PDF)
 
-install: install-package install-doc
+auctex-style: $(EL)
+
+install: install-package install-doc install-auctex-style
 
 install-package: package
 	$(INSTALL) -d $(STYDIR)
@@ -45,6 +49,10 @@ install-doc: doc
 	$(INSTALL) -d $(PDFDIR)
 	$(INSTALL) -c -m 644 $(PDF) $(PDFDIR)
 	$(MKTEXLSR)
+
+install-auctex-style: auctex-style
+	$(INSTALL) -d $(ELDIR)
+	$(INSTALL) -c -m 644 $(EL) $(ELDIR)
 
 $(STY): $(SOURCES)
 	$(TEX) $(INS)
