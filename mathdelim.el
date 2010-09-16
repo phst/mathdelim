@@ -12,37 +12,39 @@
 
 (TeX-add-style-hook
  "mathdelim"
- (lambda ()
-   (TeX-run-style-hooks
-    "etex" "expl3" "xparse" "xtemplate" "l3keys2e")
-   (TeX-add-symbols
-    '("SetupMathDelimiters" "Settings")
-    '("DeclareDelimiterSize" "Name" "Left" "Middle" "Right")
-    '("UndeclareDelimiterSize" "Name")
-    '("DeclareComplexDelimiterCommand" 'TeX-arg-define-macro "Settings" "Number of arguments" "Code")
-    '("NewComplexDelimiterCommand" 'TeX-arg-define-macro "Settings" "Number of arguments" "Code")
-    '("RenewComplexDelimiterCommand" 'TeX-arg-define-macro "Settings" "Number of arguments" "Code")
-    '("ProvideComplexDelimiterCommand" 'TeX-arg-define-macro "Settings" "Number of arguments" "Code")
-    '("DeclareSimpleDelimiterCommand" 'TeX-arg-define-macro "Settings")
-    '("NewSimpleDelimiterCommand" 'TeX-arg-define-macro "Settings")
-    '("RenewSimpleDelimiterCommand" 'TeX-arg-define-macro "Settings")
-    '("ProvideSimpleDelimiterCommand" 'TeX-arg-define-macro "Settings")
-    '("mathdelim" [ "Size" ] "Settings" t)
-    "middledelim"
-    "biggg" "bigggl" "bigggm" "bigggr"
-    "Biggg" "Bigggl" "Bigggm" "Bigggr"
-    '("mathvcenter" t))
-   (mapc
-    'TeX-mathdelim-add-delim
-    '("parens" "brackets" "braces" "chevrons"
-      "set" "setprop"
-      "cinterval" "lointerval" "rointerval" "ointerval"
-      "eval" "innerprod"
-      "abs" "norm" "floor" "ceil"
-      "average" "commutator" "anticommutator"
-      "bra" "ket" "braket" "braopket" "ketbra" "ketbraket"))))
-
-(defun TeX-mathdelim-add-delim (name)
-  (interactive "s")
-  (TeX-add-symbols
-   (list name [ "Size "] t)))
+ (function
+  (lambda ()
+    (TeX-run-style-hooks
+     "etex" "expl3" "xparse" "xtemplate" "l3keys2e")
+    (apply
+     'TeX-add-symbols
+     '("SetupMathDelimiters" "Settings")
+     '("DeclareDelimiterSize" "Size" "Left" "Middle" "Right")
+     '("UndeclareDelimiterSize" "Size")
+     '("DeclareComplexDelimiterCommand" TeX-arg-define-macro "Settings" "Number of arguments" "Code")
+     '("NewComplexDelimiterCommand" TeX-arg-define-macro "Settings" "Number of arguments" "Code")
+     '("RenewComplexDelimiterCommand" TeX-arg-define-macro "Settings" "Number of arguments" "Code")
+     '("ProvideComplexDelimiterCommand" TeX-arg-define-macro "Settings" "Number of arguments" "Code")
+     '("DeclareSimpleDelimiterCommand" TeX-arg-define-macro "Settings")
+     '("NewSimpleDelimiterCommand" TeX-arg-define-macro "Settings")
+     '("RenewSimpleDelimiterCommand" TeX-arg-define-macro "Settings")
+     '("ProvideSimpleDelimiterCommand" TeX-arg-define-macro "Settings")
+     '("mathdelim" ["Size"] "Settings" t)
+     '("mathdelim*" ["Size"] "Settings" t)
+     "middledelim"
+     "biggg" "bigggl" "bigggm" "bigggr"
+     "Biggg" "Bigggl" "Bigggm" "Bigggr"
+     '("mathvcenter" t))
+     (apply
+      'append
+      (mapcar
+       '(lambda (name)
+          (list name ["Size"] t)
+          (list (concat name "*") ["Size"] t))
+       '("parens" "brackets" "braces" "chevrons"
+         "set" "setprop"
+         "cinterval" "lointerval" "rointerval" "ointerval"
+         "eval" "innerprod"
+         "abs" "norm" "floor" "ceil"
+         "average" "commutator" "anticommutator"
+         "bra" "ket" "braket" "braopket" "ketbra" "ketbraket"))))))
