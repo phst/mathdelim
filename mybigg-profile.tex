@@ -1,0 +1,92 @@
+\errorcontextlines=100
+
+\def\mylittle#1{%
+  {%
+    \mathpalette\mylittleaux{#1}%
+  }%
+}
+
+\def\mylittleaux#1#2{%
+  \hbox{%
+    $#1
+    \left#2\right.%
+    \mathsurround=0pt
+    \nulldelimiterspace=0pt$
+  }%
+}
+
+\def\mylittlel{\mathopen\mylittle}
+\def\mylittler{\mathclose\mylittle}
+
+\def\mybig#1{%
+  {%
+    \mathord{}%
+    \nonscript\mskip-\thinmuskip
+    \left#1%
+    \vbox to 8.5pt{}%
+    \right.%
+    \hskip-\nulldelimiterspace%
+    \nonscript\mskip-\thinmuskip%
+    \mathord{}%
+  }%
+}
+
+\def\mybigl{\mathopen\mybig}
+\def\mybigr{\mathclose\mybig}
+
+\nulldelimiterspace=5pt
+\thinmuskip=10mu
+\medmuskip=3mu plus 3mu minus 3mu
+\thickmuskip=5mu plus 5mu minus 5mu
+
+\parskip=0pt plus 10pt
+
+\newcount\parcount
+\newcount\itercount
+
+\def\writepars{%
+  \ifnum\parcount<1000
+    \itercount=0
+    $\writeiters$
+    \par
+    \advance\parcount1
+    \expandafter\writepars
+  \fi
+}
+
+\def\writeiters{%
+  \ifnum\itercount<100
+    \iteration
+    \advance\itercount1
+    \expandafter\writeiters
+  \fi
+}
+
+\def\diagnostic#1{%
+  \immediate\write16{%
+    !!! Elapsed before #1: \the\dimexpr\pdfelapsedtime sp%
+  }%
+}
+
+\diagnostic{normal paren}
+\def\iteration{+(a)}
+\parcount=0
+\writepars
+
+\diagnostic{mylittle}
+\def\iteration{+\mylittlel(a\mylittler)}
+\parcount=0
+\writepars
+
+\diagnostic{big}
+\def\iteration{+\bigl(a\bigr)}
+\parcount=0
+\writepars
+
+\diagnostic{mybig}
+\def\iteration{+\mybigl(a\mybigr)}
+\parcount=0
+\writepars
+
+\diagnostic{bye}
+\bye

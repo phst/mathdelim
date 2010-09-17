@@ -1,0 +1,63 @@
+\newcommand*{\profile}[1]{%
+  \typeout{%
+    ----- Elapsed time after \detokenize{#1}:
+    \the\dimexpr\number\pdfelapsedtime sp\relax\space-----%
+  }%
+}
+
+\profile{loading the format}
+
+\documentclass{minimal}
+
+\profile{loading the class}
+
+\usepackage{mathdelim}
+
+\profile{loading the package}
+
+\usepackage{expl3}
+
+
+\begin{document}
+
+\null
+
+\newdimen\testdimen
+\settowidth{\testdimen}{$()$}
+
+\ExplSyntaxNamesOn
+\makeatletter
+
+\profile{\begin{document}}
+\prg_replicate:nn{30000}{%
+  \prg_replicate:nn{100}{$\kern\testdimen$\hbox{}\space}%
+  \par
+}
+\profile{3000000 times \kern\testdimen}
+\prg_replicate:nn{30000}{%
+  \prg_replicate:nn{100}{$()$\space}%
+  \par
+}
+\profile{3000000 times ()}
+\prg_replicate:nn{30000}{%
+  \prg_replicate:nn{100}{$\left(\right)$\space}%
+  \par
+}
+\profile{3000000 times \left(\right)}
+\prg_replicate:nn{1000}{%
+  \prg_replicate:nn{100}{$\parens{}$\space}%
+  \par
+}
+\profile{100000 \parens{}}
+\prg_replicate:nn{300}{%
+  \prg_replicate:nn{100}{$\mathdelim{left=(,right=)}{}$\space}%
+  \par
+}
+\profile{30000 \mathdelim{left=(,right=)}{}}
+
+\ExplSyntaxNamesOff
+\makeatother
+
+\profile{end of the text}
+
+\end{document}

@@ -1,0 +1,123 @@
+\documentclass[a4paper, fleqn]{article}
+
+\usepackage{etoolbox}
+\usepackage{lmodern}
+\usepackage[T1]{fontenc}
+\usepackage{mathdelim}
+\usepackage{amsmath}
+
+\newcommand*{\border}{\mathord{\Bigg|}}
+
+\newcommand*{\test}[1]{%
+  \[%
+  \hspace{6cm}%
+  \texttt{\small\llap{\detokenize{#1}}}%
+  \quad
+  \border
+  #1%
+  \border
+  \]
+  \par
+}
+
+\parindent=0pt
+\parskip=3pt
+
+\appto{\normalsize}{%
+  \abovedisplayskip=0pt
+  \abovedisplayshortskip=0pt
+  \belowdisplayskip=4pt
+  \belowdisplayshortskip=4pt
+}
+
+\errorcontextlines=1000
+
+
+\begin{document}
+
+$.$
+
+\tracingmacros=2
+\tracingonline=1
+%$\parens{}$
+\tracingmacros=0
+\tracingonline=0
+
+Errors:
+%%% \SetupMathDelimiters{method=create}
+%%% \SetupMathDelimiters{scale=what}
+%%% \cinterval{0}{1}
+
+Mode-dependent scaling:
+\begingroup
+$\parens{\bigg|}$
+\SetupMathDelimiters{scale=display}
+$\parens{\bigg|}$
+\SetupMathDelimiters{scale=always}
+$\parens{\bigg|}$
+\endgroup
+$\parens{\bigg|}$
+
+Sub- and superscripts:
+\begingroup
+\SetupMathDelimiters{scale=always}
+$\parens{\bigg|}_x^y$
+$\parens[2]{\bigg|}_x^y$
+$\parens*{\bigg|}_x^y$
+$\parens*[2]{\bigg|}_x^y$
+\endgroup
+
+Set delimiter skip:
+\begingroup
+$\set{x} \; X_{\set{x}}$
+\SetupMathDelimiters{set-delim-skip=15mu}
+$\set{x} \; X_{\set{x}}$
+\endgroup
+$\set{x} \; X_{\set{x}}$
+
+Set property separator skip:
+\begingroup
+$\setprop{x}{y} \; X_{\setprop{x}{y}}$
+\SetupMathDelimiters{setprop-sep-skip=20mu}
+$\setprop{x}{y} \; X_{\setprop{x}{y}}$
+\endgroup
+$\setprop{x}{y} \; X_{\setprop{x}{y}}$
+
+Interval notation:
+\begingroup
+$\lointerval{0}{1}$
+\SetupMathDelimiters{interval=modern}
+$\rointerval{0}{1}$
+\endgroup
+$\ointerval{0}{1}$
+
+\thinmuskip=20mu
+\medmuskip=60mu
+\thickmuskip=100mu
+\mathsurround=40pt
+\nulldelimiterspace=5pt
+
+\iffalse
+\test{(\frac12)}
+\test{\left(\frac12\right)}
+\test{\Biggl(\frac12\Biggr)}
+\test{\parens{\frac12}}
+\test{\parens[none]{\frac12}}
+\test{\parens[1]{\frac12}}
+\test{\parens[Bigg]{\frac12}}
+\test{\parens*{\frac12}}
+\test{\parens*[0]{\frac12}}
+\test{\parens*[unscaled]{\frac12}}
+\test{\parens*[5]{\frac12}}
+\test{\parens{\frac12}_1^2}
+\test{\parens*{\frac12}_1^2}
+\test{\sin\parens{\frac12} \cos\parens{\frac12}}
+\test{\sin\parens*{\frac12} \cos\parens*{\frac12}}
+\test{\sin\parens{\frac12}_1^2 \cos\parens{\frac12}_1^2}
+\test{\sin\parens*{\frac12}_1^2 \cos\parens*{\frac12}_1^2}
+\fi
+
+%\test{\biggl(a\biggr)}
+%\test{\mybiggl(a\mybiggr)}
+
+\end{document}

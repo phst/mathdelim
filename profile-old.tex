@@ -1,0 +1,43 @@
+\newcommand*{\profile}[1]{%
+  \typeout{%
+    ----- Elapsed time after \detokenize{#1}:
+    \the\dimexpr\number\pdfelapsedtime sp\relax -----%
+  }%
+}
+
+\profile{loading the format}
+
+\documentclass{minimal}
+
+\profile{loading the class}
+
+\usepackage{phst-delimiters}
+
+\profile{loading the package}
+
+\usepackage{expl3}
+
+
+\begin{document}
+
+\null
+
+\ExplSyntaxNamesOn
+
+\profile{\begin{document}}
+\prg_replicate:nn{10000}{%
+  \prg_replicate:nn{100}{$\left(\right)$\space}%
+  \par
+}
+\profile{1000000 times \left(\right)}
+\prg_replicate:nn{500}{%
+  \prg_replicate:nn{100}{$\parens{}$\space}%
+  \par
+}
+\profile{50000 \parens{}}
+
+\ExplSyntaxNamesOff
+
+\profile{end of the text}
+
+\end{document}
