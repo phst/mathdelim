@@ -435,30 +435,6 @@
 %
 % \subsection{Generic low-level macros}
 %
-% \begin{macro}{\mathdelim_execute:x}
-% bla bla |\mathdelim_execute:x|\marg{code} bla bla
-%    \begin{macrocode}
-% where is exp_arg:x?
-\cs_new_protected_nopar:Npn \mathdelim_execute:x #1 {
-  \group_begin:
-  \cs_set_nopar:Npx \mathdelim_temp_func: { #1 }
-  \exp_after:wN
-  \group_end:
-  \mathdelim_temp_func:
-}
-%    \end{macrocode}
-% \end{macro}
-%
-% \begin{macro}{\mathdelim_bool_to_str:N}
-% |\mathdelim_bool_to_str:N|\meta{bool}
-%    \begin{macrocode}
-% why is this necessary
-\cs_new_nopar:Nn \mathdelim_bool_to_str:N {
-  \bool_if:NTF #1 { true } { false }
-}
-%    \end{macrocode}
-% \end{macro}
-%
 % \begin{l3message}{unknown-setting}
 %    \begin{macrocode}
 \msg_new:nnn { mathdelim } { unknown-setting } {%
@@ -717,6 +693,18 @@
 %    \end{macrocode}
 % \end{macro}
 %
+% \begin{macro}{\l_mathdelim_default_unspaced_bool}
+%    \begin{macrocode}
+\bool_new:N \l_mathdelim_default_unspaced_bool
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{option}{default-unspaced}
+%    \begin{macrocode}
+\mathdelim_new_bool_key_assign:nN { default-unspaced } \l_mathdelim_default_unspaced_bool
+%    \end{macrocode}
+% \end{option}
+%
 % \begin{macro}{\mathdelim_print_csnsme:xN}
 % \begin{macro}{\mathdelim_print_csname:NN}
 %    \begin{macrocode}
@@ -724,7 +712,10 @@
   mathdelim_print_
   #1
   _
-  \mathdelim_bool_to_str:N #2
+%    \end{macrocode}
+% |\bool_if_eq|, |\bool_to_str| are missing
+%    \begin{macrocode}
+  \intexpr_compare:nNnTF { \l_mathdelim_default_unspaced_bool } = { #2 } { false } { true }
   :n
 }
 \cs_new_nopar:Nn \mathdelim_print_csname:NN {
@@ -914,7 +905,7 @@
 % \begin{macro}{\mathdelim_big_make_class:n}
 %    \begin{macrocode}
 \cs_new_protected_nopar:Nn \mathdelim_big_make_class:n {
-  \mathdelim_execute:x {
+  \use:x {
     \exp_not:N \ProvideDocumentCommand \exp_not:c { #1 l } { } {
       \tex_mathopen:D \exp_not:c { #1 }
     }
@@ -1124,7 +1115,7 @@
     \mathdelim_helper_csname:Nn #1 { #3 }
   }
   \cs_set_protected_nopar:cn { \l_mathdelim_name_tl } { #4 }
-  \mathdelim_execute:x {
+  \use:x {
     \mathdelim_inst_make:Nn \exp_not:N #1 {
       \exp_not:n { #2 } ,
       macro = \use:c { \l_mathdelim_name_tl }
